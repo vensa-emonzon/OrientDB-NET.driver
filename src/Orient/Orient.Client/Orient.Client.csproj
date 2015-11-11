@@ -44,9 +44,9 @@
     <Compile Include="API\Exceptions\OException.cs" />
     <Compile Include="API\Exceptions\OExceptionType.cs" />
     <Compile Include="API\OTransaction.cs" />
+    <Compile Include="API\Query\OSqlTruncate.cs" />
     <Compile Include="API\Query\OSqlAlter.cs" />
     <Compile Include="API\Query\OSqlDeleteClass.cs" />
-    <Compile Include="API\Query\OSqlTruncate.cs" />
     <Compile Include="API\Query\PreparedCommand.cs" />
     <Compile Include="API\Query\Interfaces\IOCreateCluster.cs" />
     <Compile Include="API\Query\Interfaces\IOCreateEdge.cs" />
@@ -69,6 +69,7 @@
     <Compile Include="API\Types\IBaseRecord.cs" />
     <Compile Include="API\Types\ICreationContext.cs" />
     <Compile Include="API\Types\OBaseRecord.cs" />
+    <Compile Include="API\Types\ODocument.cs" />
     <Compile Include="API\Types\OEdge.cs" />
     <Compile Include="API\Types\OEmbeddedRidBag.cs" />
     <Compile Include="API\Types\ORecordFormat.cs" />
@@ -81,7 +82,7 @@
     <Compile Include="API\OClusterType.cs" />
     <Compile Include="API\ODatabase.cs" />
     <Compile Include="API\ORecordType.cs" />
-    <Compile Include="API\Types\ORID.cs" />
+    <Compile Include="API\Types\Orid.cs" />
     <Compile Include="API\OServer.cs" />
     <Compile Include="API\OStorageType.cs" />
     <Compile Include="API\Query\OSqlCreate.cs" />
@@ -97,7 +98,7 @@
     <Compile Include="API\Query\OSqlInsert.cs" />
     <Compile Include="API\Query\OSqlSelect.cs" />
     <Compile Include="API\Query\OSqlUpdate.cs" />
-    <Compile Include="API\Types\ORidBag.cs" />
+    <Compile Include="API\Types\OridBag.cs" />
     <Compile Include="API\Types\TypeConverter.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Mapping\AllFieldMapping.cs" />
@@ -114,14 +115,12 @@
     <Compile Include="Mapping\GuidFieldMapping.cs" />
     <Compile Include="Mapping\HashSetNamedFieldMapping.cs" />
     <Compile Include="Mapping\LongFieldMapping.cs" />
-    <Compile Include="Mapping\NullableTimeSpanFieldMapping.cs" />
     <Compile Include="Mapping\OClassIdFieldMapping.cs" />
     <Compile Include="Mapping\OClassNameFieldMapping.cs" />
-    <Compile Include="Mapping\ORIDFieldMapping.cs" />
+    <Compile Include="Mapping\OridFieldMapping.cs" />
     <Compile Include="Mapping\OTypeFieldMapping.cs" />
     <Compile Include="Mapping\OVersionFieldMapping.cs" />
     <Compile Include="Mapping\ShortFieldMapping.cs" />
-    <Compile Include="Mapping\TimeSpanFieldMapping.cs" />
     <Compile Include="Mapping\TypeMapper.cs" />
     <Compile Include="Protocol\BinaryReaderHelper.cs" />
     <Compile Include="Protocol\Operations\BaseOperation.cs" />
@@ -174,7 +173,6 @@
     <Compile Include="Protocol\Operations\OperationType.cs" />
     <Compile Include="Protocol\Request.cs" />
     <Compile Include="Protocol\Response.cs" />
-    <Compile Include="API\Types\ODocument.cs" />
     <Compile Include="Protocol\ResponseStatus.cs" />
     <Compile Include="Protocol\Serializers\BinaryBuffer.cs" />
     <Compile Include="Protocol\Serializers\BinarySerializer.cs" />
@@ -182,12 +180,12 @@
     <Compile Include="Protocol\Serializers\RecordBinarySerializer.cs" />
     <Compile Include="Protocol\Serializers\RecordCSVSerializer.cs" />
     <Compile Include="Protocol\Serializers\RecordSerializerFactory.cs" />
-    <Compile Include="Transactions\ORIDArrayPropertyUpdater.cs" />
-    <Compile Include="Transactions\ORIDHashSetUpdater.cs" />
-    <Compile Include="Transactions\ORIDListPropertyUpdater.cs" />
-    <Compile Include="Transactions\ORIDPropertyUpdater.cs" />
-    <Compile Include="Transactions\ORIDSimplePropertyUpdater.cs" />
-    <Compile Include="Transactions\ORIDUpdater.cs" />
+    <Compile Include="Transactions\OridArrayPropertyUpdater.cs" />
+    <Compile Include="Transactions\OridHashSetUpdater.cs" />
+    <Compile Include="Transactions\OridListPropertyUpdater.cs" />
+    <Compile Include="Transactions\OridPropertyUpdater.cs" />
+    <Compile Include="Transactions\OridSimplePropertyUpdater.cs" />
+    <Compile Include="Transactions\OridUpdater.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
