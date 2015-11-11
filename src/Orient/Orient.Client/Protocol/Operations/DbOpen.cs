@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using System.Text;
 using Orient.Client.API.Types;
-using Orient.Client.Protocol.Serializers;
 
 namespace Orient.Client.Protocol.Operations
 {
@@ -96,21 +94,27 @@ namespace Orient.Client.Protocol.Operations
 
                     int clusterNameLength = reader.ReadInt32EndianAware();
 
-                    cluster.Name = System.Text.Encoding.Default.GetString(reader.ReadBytes(clusterNameLength));
+                    cluster.Name = Encoding.Default.GetString(reader.ReadBytes(clusterNameLength));
 
                     cluster.Id = reader.ReadInt16EndianAware();
 
-                    if (OClient.ProtocolVersion < 24)
-                    {
-                        int clusterTypeLength = reader.ReadInt32EndianAware();
+                    #region !!! code segment commented out to bypass obsolete warning which will break our build.  We will never use a protocol version less than 30. !!!
 
-                        string clusterType = System.Text.Encoding.Default.GetString(reader.ReadBytes(clusterTypeLength));
-                        //cluster.Type = (OClusterType)Enum.Parse(typeof(OClusterType), clusterType, true);
-                        if (OClient.ProtocolVersion >= 12)
-                            cluster.DataSegmentID = reader.ReadInt16EndianAware();
-                        else
-                            cluster.DataSegmentID = 0;
-                    }
+                    //if (OClient.ProtocolVersion < 24)
+                    //{
+                    //    int clusterTypeLength = reader.ReadInt32EndianAware();
+
+                    //    string clusterType = System.Text.Encoding.Default.GetString(reader.ReadBytes(clusterTypeLength));
+                    //    //cluster.Type = (OClusterType)Enum.Parse(typeof(OClusterType), clusterType, true);
+                    //    if (OClient.ProtocolVersion >= 12)
+                    //        cluster.DataSegmentID = reader.ReadInt16EndianAware();
+                    //    else
+                    //        cluster.DataSegmentID = 0;
+                    //}
+
+                    #endregion
+
+
                     clusters.Add(cluster);
                 }
 

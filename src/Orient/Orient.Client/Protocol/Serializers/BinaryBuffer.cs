@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Orient.Client.Protocol.Serializers
 {
@@ -87,7 +85,7 @@ namespace Orient.Client.Protocol.Serializers
             return pos;
         }
 
-        internal int Write(ORID rid)
+        internal int Write(Orid rid)
         {
             var pos = Length;
             WriteVariant(rid.ClusterId);

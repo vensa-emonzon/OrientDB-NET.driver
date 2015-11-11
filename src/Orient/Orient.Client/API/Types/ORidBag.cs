@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Orient.Client.API.Types
 {
-    public abstract class ORidBag : List<ORID>
+    public abstract class OridBag : List<Orid>
     {
     }
 }

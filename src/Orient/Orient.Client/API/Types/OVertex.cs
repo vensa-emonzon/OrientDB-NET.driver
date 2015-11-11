@@ -5,26 +5,14 @@ namespace Orient.Client
     public class OVertex : ODocument
     {
         [OProperty(Alias = "in_", Serializable = false)]
-        public HashSet<ORID> InE 
-        {
-            get
-            {
-                return this.GetField<HashSet<ORID>>("in_");
-            }
-        }
+        public HashSet<Orid> InE => GetField<HashSet<Orid>>("in_");
 
         [OProperty(Alias = "out_", Serializable = false)]
-        public HashSet<ORID> OutE 
-        {
-            get
-            {
-                return this.GetField<HashSet<ORID>>("out_");
-            }
-        }
+        public HashSet<Orid> OutE => GetField<HashSet<Orid>>("out_");
 
         public OVertex()
         {
-            this.OClassName = "V";
+            OClassName = "V";
         }
     }
 }

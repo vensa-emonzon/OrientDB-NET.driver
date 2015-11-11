@@ -3,23 +3,23 @@ using System.Reflection;
 
 namespace Orient.Client.Transactions
 {
-    internal class ORIDArrayPropertyUpdater<TTarget> : ORIDPropertyUpdater<TTarget, ORID[]>
+    internal class OridArrayPropertyUpdater<TTarget> : OridPropertyUpdater<TTarget, Orid[]>
     {
-        public ORIDArrayPropertyUpdater(PropertyInfo propertyInfo) : base(propertyInfo)
+        public OridArrayPropertyUpdater(PropertyInfo propertyInfo) : base(propertyInfo)
         {
         }
 
-        public override void Update(object oTarget, Dictionary<ORID, ORID> mappings)
+        public override void Update(object oTarget, Dictionary<Orid, Orid> mappings)
         {
-            ORID[] orids = GetValue(oTarget);
-            if (orids == null)
+            Orid[] Orids = GetValue(oTarget);
+            if (Orids == null)
                 return;
-            for (int i = 0; i < orids.Length; i++)
+            for (int i = 0; i < Orids.Length; i++)
             {
-                ORID replacement;
-                if (mappings.TryGetValue(orids[i], out replacement))
+                Orid replacement;
+                if (mappings.TryGetValue(Orids[i], out replacement))
                 {
-                    orids[i] = replacement;
+                    Orids[i] = replacement;
                 }
             }
         }

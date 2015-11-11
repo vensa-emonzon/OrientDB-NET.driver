@@ -4,24 +4,24 @@ using System.Reflection;
 
 namespace Orient.Client.Transactions
 {
-    internal class ORIDHashSetUpdater<TTarget> : ORIDPropertyUpdater<TTarget, HashSet<ORID>> 
+    internal class OridHashSetUpdater<TTarget> : OridPropertyUpdater<TTarget, HashSet<Orid>> 
     {
-        public ORIDHashSetUpdater(PropertyInfo propertyInfo) : base(propertyInfo)
+        public OridHashSetUpdater(PropertyInfo propertyInfo) : base(propertyInfo)
         {
         }
 
-        public override void Update(object oTarget, Dictionary<ORID, ORID> mappings)
+        public override void Update(object oTarget, Dictionary<Orid, Orid> mappings)
         {
-            var orids = GetValue(oTarget);
-            if (orids == null)
+            var Orids = GetValue(oTarget);
+            if (Orids == null)
                 return;
-            foreach (var orid in orids.ToList())
+            foreach (var Orid in Orids.ToList())
             {
-                ORID replacement;
-                if (mappings.TryGetValue(orid, out replacement))
+                Orid replacement;
+                if (mappings.TryGetValue(Orid, out replacement))
                 {
-                    orids.Remove(orid);
-                    orids.Add(replacement);
+                    Orids.Remove(Orid);
+                    Orids.Add(replacement);
                 }
             }
         }

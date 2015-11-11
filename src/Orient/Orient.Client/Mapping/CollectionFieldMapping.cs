@@ -29,7 +29,7 @@ namespace Orient.Client.Mapping
 
         protected override void AddItemToCollection(object collection, int index, object item)
         {
-            Type itemType = _propertyInfo.PropertyType.GetGenericArguments()[0];
+            Type itemType = PropertyInfo.PropertyType.GetGenericArguments()[0];
             if (itemType.IsEnum)
             {
                 ((IList)collection).Add(Enum.Parse(itemType, item.ToString()));
@@ -63,7 +63,7 @@ namespace Orient.Client.Mapping
 
         protected override void AddItemToCollection(object collection, int index, object item)
         {
-            Type itemType = _propertyInfo.PropertyType.GetElementType();
+            Type itemType = PropertyInfo.PropertyType.GetElementType();
             if (itemType.IsEnum)
             {
                 ((IList)collection)[index] = Enum.Parse(itemType, item.ToString());
@@ -71,10 +71,6 @@ namespace Orient.Client.Mapping
             else if (itemType == typeof(Guid))
             {
                 ((IList)collection)[index] = Guid.Parse(item.ToString());
-            }
-            else if (item == null)
-            {
-                ((IList)collection)[index] = null;
             }
             else if (item is IConvertible || itemType.IsAssignableFrom(item.GetType()))
             {

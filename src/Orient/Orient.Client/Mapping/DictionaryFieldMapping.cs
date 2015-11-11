@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Orient.Client.Mapping
 {
-    internal class DictionaryFieldMapping<TTarget> : CollectionNamedFieldMapping<TTarget>
+    internal sealed class DictionaryFieldMapping<TTarget> : CollectionNamedFieldMapping<TTarget>
     {
         private readonly Func<int, object> _dictionaryFactory;
         private readonly Type _keyType;
@@ -21,11 +19,11 @@ namespace Orient.Client.Mapping
             _keyType = propertyInfo.PropertyType.GetGenericArguments()[0];
             _valueType = propertyInfo.PropertyType.GetGenericArguments()[1];
 
-            _needsMapping = !NeedsNoConversion(_valueType);
-            if (_needsMapping)
+            NeedsMapping = !NeedsNoConversion(_valueType);
+            if (NeedsMapping)
             {
-                _mapper = TypeMapperBase.GetInstanceFor(_valueType);
-                _elementFactory = FastConstructor.BuildConstructor(_valueType);
+                Mapper = TypeMapperBase.GetInstanceFor(_valueType);
+                ElementFactory = FastConstructor.BuildConstructor(_valueType);
             }
 
             if (propertyInfo.PropertyType.IsInterface)
@@ -43,65 +41,60 @@ namespace Orient.Client.Mapping
 
         protected override void MapToNamedField(ODocument document, TTarget typedObject)
         {
-            ODocument sourcePropertyValue = document.GetField<ODocument>(_fieldPath);
+            var sourcePropertyValue = document.GetField<ODocument>(FieldPath);
             var collection = CreateCollectionInstance(sourcePropertyValue.Count);
-
             AddItemToCollection(collection, 0, sourcePropertyValue);
-
             SetPropertyValue(typedObject, collection);
         }
 
         protected override void AddItemToCollection(object collection, int index, object item)
         {
-            var enumerator = ((IDictionary)item).GetEnumerator();
-            while (enumerator.MoveNext())
+            foreach (var element in (ODocument)item)
             {
-                object key = enumerator.Key;
-                object value = enumerator.Value;
+                object key = element.Key;
+                object value = element.Value;
 
-                if (_keyType == typeof(Int16) ||
-                    _keyType == typeof(Int32) ||
-                    _keyType == typeof(Int64))
+                if (_keyType == typeof(short) || _keyType == typeof(int) || _keyType == typeof(long))
                 {
-                    key = Convert.ChangeType(enumerator.Key, _keyType);
+                    key = Convert.ChangeType(key, _keyType);
                 }
                 else if (_keyType == typeof(Guid))
                 {
-                    key = Guid.Parse(enumerator.Key.ToString());
+                    key = Guid.Parse(key.ToString());
                 }
                 else if (_keyType.IsEnum)
                 {
-                    key = Enum.Parse(_keyType, enumerator.Key.ToString());
+                    key = Enum.Parse(_keyType, key.ToString());
                 }
-                if (_valueType == typeof(Int16) ||
-                    _valueType == typeof(Int32) ||
-                    _valueType == typeof(Int64))
+
+                if (_valueType == typeof(short) || _valueType == typeof(int) || _valueType == typeof(long))
                 {
-                    value = Convert.ChangeType(enumerator.Value, _valueType);
+                    value = Convert.ChangeType(value, _valueType);
                 }
                 else if (_valueType == typeof(Guid))
                 {
-                    value = Guid.Parse(enumerator.Value.ToString());
+                    value = Guid.Parse(value.ToString());
                 }
                 else if (_valueType.IsEnum)
                 {
-                    value = Enum.Parse(_valueType, enumerator.Value.ToString());
+                    value = Enum.Parse(_valueType, value.ToString());
                 }
 
-                if (_needsMapping)
+                if (NeedsMapping)
                 {
-                    var oMaped = _elementFactory();
-                    _mapper.ToObject((ODocument)value, oMaped);
+                    var oMaped = ElementFactory();
+                    Mapper.ToObject((ODocument)value, oMaped);
                     value = oMaped;
                 }
 
                 ((IDictionary)collection).Add(key, value);
             }
         }
-        public override void MapToDocument(TTarget typedObject, ODocument document)
+
+        protected override void MapToDocument(TTarget typedObject, ODocument document)
         {
 
-            var dictionaryType = typeof(Dictionary<,>).MakeGenericType(_keyType, _needsMapping ? typeof(ODocument) : _valueType);
+            var dictionaryType = typeof(Dictionary<,>).MakeGenericType(_keyType, NeedsMapping ? typeof(ODocument) : _valueType);
 
             var targetDictionary = (IDictionary)Activator.CreateInstance(dictionaryType);
 
@@ -112,11 +105,11 @@ namespace Orient.Client.Mapping
                 var enumerator = sourceList.GetEnumerator();
                 while (enumerator.MoveNext())
                 {
-                    targetDictionary.Add(enumerator.Key, _needsMapping ? _mapper.ToDocument(enumerator.Value) : enumerator.Value);
+                    targetDictionary.Add(enumerator.Key, NeedsMapping ? Mapper.ToDocument(enumerator.Value) : enumerator.Value);
                 }
             }
 
-            document.SetField(_fieldPath, targetDictionary);
+            document.SetField(FieldPath, targetDictionary);
         }
     }
 }

@@ -1,7 +1,5 @@
-﻿using Orient.Client.Protocol.Serializers;
-using System.Linq;
-using System.IO;
-using System;
+﻿using System.IO;
+using System.Text;
 
 namespace Orient.Client.Protocol
 {
@@ -40,14 +38,14 @@ namespace Orient.Client.Protocol
                 while (followByte == 1)
                 {
                     int exceptionClassLength = reader.ReadInt32EndianAware();
-                    exceptionString += System.Text.Encoding.Default.GetString(reader.ReadBytes(exceptionClassLength)) + ": ";
+                    exceptionString += Encoding.Default.GetString(reader.ReadBytes(exceptionClassLength)) + ": ";
 
                     int exceptionMessageLength = reader.ReadInt32EndianAware();
 
                     // don't read exception message string if it's null
                     if (exceptionMessageLength != -1)
                     {
-                        exceptionString += System.Text.Encoding.Default.GetString(reader.ReadBytes(exceptionMessageLength)) + "\n";
+                        exceptionString += Encoding.Default.GetString(reader.ReadBytes(exceptionMessageLength)) + "\n";
                     }
 
                     followByte = reader.ReadByte();

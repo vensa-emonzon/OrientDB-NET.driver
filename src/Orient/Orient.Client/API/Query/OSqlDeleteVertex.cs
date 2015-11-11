@@ -26,9 +26,9 @@ namespace Orient.Client
 
         #region Delete
 
-        public OSqlDeleteVertex Delete(ORID orid)
+        public OSqlDeleteVertex Delete(Orid Orid)
         {
-            _sqlQuery.Record(orid);
+            _sqlQuery.Record(Orid);
 
             return this;
         }

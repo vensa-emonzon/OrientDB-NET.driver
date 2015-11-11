@@ -1,7 +1,7 @@
 using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Orient.Client.Protocol
@@ -48,9 +48,9 @@ namespace Orient.Client.Protocol
 
         #endregion
 
-        internal void Record(ORID orid)
+        internal void Record(Orid Orid)
         {
-            _compiler.Unique(Q.Record, orid.ToString());
+            _compiler.Unique(Q.Record, Orid.ToString());
         }
 
         internal void Extends(string superClass)
@@ -89,6 +89,11 @@ namespace Orient.Client.Protocol
             Set(document);
         }
 
+        internal void Upsert()
+        {
+            _compiler.Append(Q.Upsert, string.Empty);
+        }
+
         internal void Update<T>(T obj)
         {
             ODocument document;
@@ -107,9 +112,9 @@ namespace Orient.Client.Protocol
                 Class(document.OClassName);
             }
 
-            if (document.ORID != null)
+            if (document.Orid != Orid.Null)
             {
-                Record(document.ORID);
+                Record(document.Orid);
             }
 
             Set(document);
@@ -137,12 +142,12 @@ namespace Orient.Client.Protocol
                 throw new OException(OExceptionType.Query, "Document doesn't contain OClassName value.");
             }
 
-            if (document.ORID != null)
+            if (document.Orid != Orid.Null)
             {
                 // check if the @rid is correct in real example
                 Where("@rid");
 
-                Equals(document.ORID);
+                Equals(document.Orid);
             }
         }
 
@@ -164,9 +169,9 @@ namespace Orient.Client.Protocol
                 Class(document.OClassName);
             }
 
-            if (document.ORID != null)
+            if (document.Orid != Orid.Null)
             {
-                Record(document.ORID);
+                Record(document.Orid);
             }
         }
 
@@ -188,9 +193,9 @@ namespace Orient.Client.Protocol
                 Class(document.OClassName);
             }
 
-            if (document.ORID != null)
+            if (document.Orid != Orid.Null)
             {
-                Record(document.ORID);
+                Record(document.Orid);
             }
         }
 
@@ -228,9 +233,9 @@ namespace Orient.Client.Protocol
 
         #region From
 
-        internal void From(ORID orid)
+        internal void From(Orid Orid)
         {
-            _compiler.Unique(Q.From, orid.ToString());
+            _compiler.Unique(Q.From, Orid.ToString());
         }
 
         internal void From(string target)
@@ -250,17 +255,17 @@ namespace Orient.Client.Protocol
                 From(document.OClassName);
             }
 
-            if (document.ORID != null)
+            if (document.Orid != Orid.Null)
             {
-                From(document.ORID);
+                From(document.Orid);
             }
         }
 
         #endregion
 
-        internal void To(ORID orid)
+        internal void To(Orid Orid)
         {
-            _compiler.Unique(Q.To, orid.ToString());
+            _compiler.Unique(Q.To, Orid.ToString());
         }
 
         #region Set
@@ -276,13 +281,12 @@ namespace Orient.Client.Protocol
         {
             string field = "";
 
-            if (_compiler.HasKey(Q.Set) && !string.IsNullOrWhiteSpace(fieldName))
+            if (_compiler.HasKey(Q.Set))
             {
                 field += ", ";
             }
 
-            if (!string.IsNullOrWhiteSpace(fieldName))
-                field += string.Join(" ", fieldName, Q.Equals, "");
+            field += string.Join(" ", fieldName, Q.Equals, "");
 
             if (fieldValue == null)
             {
@@ -296,7 +300,7 @@ namespace Orient.Client.Protocol
 
                 foreach (object item in collection)
                 {
-                    field += BuildFieldValue(null, item);
+                    field += ToString(item);
 
                     iteration++;
 
@@ -320,7 +324,7 @@ namespace Orient.Client.Protocol
                     iteration++;
                     if (enumerator.Value != null)
                     {
-                        field += String.Format("'{0}':{1}", enumerator.Key, BuildFieldValue(null, enumerator.Value));
+                        field += String.Format("'{0}':{1}", enumerator.Key, ToString(enumerator.Value));
 
                         if (iteration < dict.Count)
                             field += ", ";
@@ -493,15 +497,6 @@ namespace Orient.Client.Protocol
 
         #endregion
 
-        #region Upsert
-
-        public void Upsert()
-        {
-            _compiler.Unique(Q.Upsert);
-        }
-
-        #endregion
-
         internal void OrderBy(params string[] fields)
         {
             for (int i = 0; i < fields.Length; i++)
@@ -543,7 +538,7 @@ namespace Orient.Client.Protocol
 
             if (value is string)
             {
-                sql = string.Join(" ", "'" + ((string)value).Replace("\\", "\\\\").Replace("\r", "\\r").Replace("\n", "\\n").Replace("'", "\\'") + "'");
+                sql = string.Join(" ", "'" + ((string)value).Replace("'", "\\'") + "'");
             }
             else if (value is DateTime)
             {
@@ -565,10 +560,6 @@ namespace Orient.Client.Protocol
                     DateTime fieldValue = (DateTime)((object)value);
                     sql = "'" + fieldValue.ToString(dateTimeFormat) + "'";
                 }
-            }
-            else if (value is TimeSpan)
-            {
-                sql = "'" + value.ToString() + "'";
             }
             else if (value is ODocument)
             {
@@ -621,10 +612,6 @@ namespace Orient.Client.Protocol
             else if (value is double)
             {
                 sql = string.Join(" ", value.ToInvarianCultureString() + "d");
-            }
-            else if (value == null)
-            {
-                sql = string.Join(" ", "null");
             }
             else
             {
@@ -816,12 +803,6 @@ namespace Orient.Client.Protocol
             else if (_compiler.HasKey(Q.Remove))
             {
                 query += string.Join(" ", "", Q.Remove, _compiler.Value(Q.Remove));
-            }
-
-            // (UPSERT)
-            if (_compiler.HasKey(Q.Upsert))
-            {
-                query += " " + Q.Upsert;
             }
 
             // [<conditions>](WHERE) 

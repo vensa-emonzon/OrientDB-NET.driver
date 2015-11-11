@@ -16,7 +16,7 @@ namespace Orient.Client.Mapping
 
         protected override void MapToNamedField(ODocument document, TTarget typedObject)
         {
-            Nullable<TimeSpan> timespan = document.GetField<Nullable<TimeSpan>>(_fieldPath);
+            Nullable<TimeSpan> timespan = document.GetField<Nullable<TimeSpan>>(FieldPath);
 
             SetPropertyValue(typedObject, timespan);
         }

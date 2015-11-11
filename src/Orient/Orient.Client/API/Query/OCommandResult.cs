@@ -7,23 +7,32 @@ namespace Orient.Client
 {
     public class OCommandResult
     {
-        private ODocument _document;
+        private readonly ODocument _document;
 
         internal OCommandResult(ODocument document)
         {
             _document = document;
         }
 
-        public int GetModifiedCount()
+        public int GetScalarResult()
         {
             switch (_document.GetField<PayloadStatus>("PayloadStatus"))
             {
                 case PayloadStatus.SingleRecord:
                     return 1;
+
                 case PayloadStatus.RecordCollection:
                     return _document.GetField<List<ODocument>>("Content").Count;
+
                 case PayloadStatus.SerializedResult:
-                    return Convert.ToInt32(_document.GetField<object>("Content"));
+                    int intResult;
+                    bool boolResult;
+                    var content = _document.GetField<string>("Content");
+                    if (int.TryParse(content, out intResult))
+                        return intResult;
+                    if (bool.TryParse(content, out boolResult))
+                        return Convert.ToInt32(boolResult);
+                    break;
             }
 
             return 0;
@@ -38,14 +47,14 @@ namespace Orient.Client
                 case PayloadStatus.SingleRecord:
                     document = _document.GetField<ODocument>("Content");
                     break;
+
                 case PayloadStatus.RecordCollection:
                     document = _document.GetField<List<ODocument>>("Content").FirstOrDefault();
                     break;
+
                 case PayloadStatus.SerializedResult:
                     document = new ODocument();
-                    document.SetField<object>("value",_document.GetField<object>("Content"));
-                    break;
-                default:
+                    document.SetField("value", _document.GetField<string>("Content"));
                     break;
             }
 

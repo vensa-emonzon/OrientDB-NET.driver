@@ -1,7 +1,6 @@
 ﻿using Orient.Client.API.Query;
 using Orient.Client.API.Query.Interfaces;
 using Orient.Client.Protocol;
-using Orient.Client.Protocol.Operations;
 
 namespace Orient.Client
 {

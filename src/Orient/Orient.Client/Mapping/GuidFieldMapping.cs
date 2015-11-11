@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Orient.Client.Mapping
 {
@@ -15,7 +12,13 @@ namespace Orient.Client.Mapping
         }
         protected override void MapToNamedField(ODocument document, TTarget typedObject)
         {
-            SetPropertyValue(typedObject, new Guid(document.GetField<string>(_fieldPath)));
+            var fieldPathType = document.GetFieldType(FieldPath);
+            if (fieldPathType == typeof(Orid))
+                SetPropertyValue(typedObject, document.GetField<Guid>(FieldPath));
+            else if (fieldPathType == typeof(string))
+                SetPropertyValue(typedObject, new Guid(document.GetField<string>(FieldPath)));
+            else
+                throw new InvalidCastException("Unsupported Guid conversion");
         }
     }
 }

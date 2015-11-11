@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Orient.Client
 {
@@ -22,7 +20,7 @@ namespace Orient.Client
             else if (value is double)
                 return ((double)value).ToString("R", CultureInfo.InvariantCulture);
             else
-                return (formattable != null) ? formattable.ToString(null, CultureInfo.InvariantCulture) : value.ToString();
+                return formattable?.ToString(null, CultureInfo.InvariantCulture) ?? value.ToString();
         }
     }
 }

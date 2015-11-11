@@ -141,8 +141,6 @@ namespace Orient.Client.Protocol
                 req.SetSessionId(SessionId);
 
                 Request request = operation.Request(req);
-                byte[] buffer;
-
                 foreach (RequestDataItem item in request.DataItems)
                 {
                     switch (item.Type)
@@ -153,19 +151,19 @@ namespace Orient.Client.Protocol
                         case "long":
                             Send(item.Data);
                             break;
+
                         case "record":
-                            buffer = new byte[2 + item.Data.Length];
+                            var buffer = new byte[2 + item.Data.Length];
                             Buffer.BlockCopy(BinarySerializer.ToArray(item.Data.Length), 0, buffer, 0, 2);
                             Buffer.BlockCopy(item.Data, 0, buffer, 2, item.Data.Length);
                             Send(buffer);
                             break;
+                            
                         case "bytes":
                         case "string":
                         case "strings":
                             Send(BinarySerializer.ToArray(item.Data.Length));
                             Send(item.Data);
-                            break;
-                        default:
                             break;
                     }
                 }
@@ -175,9 +173,9 @@ namespace Orient.Client.Protocol
                 if (request.OperationMode != OperationMode.Synchronous)
                     return null;
 
-                Response response = new Response(this);
+                var response = new Response(this);
                 response.Receive();
-                return ((IOperation)operation).Response(response);
+                return operation.Response(response);
             }
             catch (IOException)
             {
@@ -259,7 +257,7 @@ namespace Orient.Client.Protocol
 
         private void InitializeDatabaseConnection(string databaseName, ODatabaseType databaseType, string userName, string userPassword)
         {
-            _readBuffer = new byte[OClient.BufferLenght];
+            _readBuffer = new byte[OClient.BufferLength];
 
             // initiate socket connection
             try
@@ -293,7 +291,7 @@ namespace Orient.Client.Protocol
 
         private void InitializeServerConnection(string userName, string userPassword)
         {
-            _readBuffer = new byte[OClient.BufferLenght];
+            _readBuffer = new byte[OClient.BufferLength];
 
             // initiate socket connection
             try

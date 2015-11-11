@@ -1,18 +1,18 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
-using System.Globalization;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Text;
-using Orient.Client.Protocol.Operations;
 using Orient.Client.API.Types;
+using Orient.Client.Protocol.Operations;
 
 namespace Orient.Client.Protocol.Serializers
 {
     internal class RecordCSVSerializer : IRecordSerializer
     {
-        private Connection _connection;
+        private readonly Connection _connection;
         public RecordCSVSerializer(Connection connection)
         {
             _connection = connection;
@@ -20,7 +20,7 @@ namespace Orient.Client.Protocol.Serializers
 
         public byte[] Serialize(ODocument document)
         {
-            if (!document.HasField("@OClassName"))
+            if (!document.Contains("@OClassName"))
             {
                 throw new OException(OExceptionType.Serialization, "Document doesn't contain @OClassName field which is required for serialization.");
             }
@@ -30,10 +30,10 @@ namespace Orient.Client.Protocol.Serializers
 
         #region Deserialize
 
-        internal ODocument Deserialize(ORID orid, int version, ORecordType type, short classId, byte[] rawRecord)
+        internal ODocument Deserialize(Orid Orid, int version, ORecordType type, short classId, byte[] rawRecord)
         {
             ODocument document = new ODocument();
-            document.ORID = orid;
+            document.Orid = Orid;
             document.OVersion = version;
             document.OType = type;
             document.OClassId = classId;
@@ -128,13 +128,13 @@ namespace Orient.Client.Protocol.Serializers
                 case TypeCode.Boolean:
                     return value.ToString().ToLower();
                 case TypeCode.Byte:
-                    return value.ToString() + "b";
+                    return value + "b";
                 case TypeCode.Int16:
-                    return value.ToString() + "s";
+                    return value + "s";
                 case TypeCode.Int32:
-                    return value.ToString();
+                    return value + string.Empty;
                 case TypeCode.Int64:
-                    return value.ToString() + "l";
+                    return value + "l";
                 case TypeCode.Single:
                     return ((float)value).ToString(CultureInfo.InvariantCulture) + "f";
                 case TypeCode.Double:
@@ -143,7 +143,7 @@ namespace Orient.Client.Protocol.Serializers
                     return ((decimal)value).ToString(CultureInfo.InvariantCulture) + "c";
                 case TypeCode.DateTime:
                     DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                    return ((long)((DateTime)value - unixEpoch).TotalMilliseconds).ToString() + "t";
+                    return ((long)((DateTime)value - unixEpoch).TotalMilliseconds) + "t";
                 case TypeCode.String:
                 case TypeCode.Char:
                     // strings must escape these characters:
@@ -208,10 +208,10 @@ namespace Orient.Client.Protocol.Serializers
                     bld.Append(valueType.Name == "HashSet`1" ? ">" : "]");
                 }
             }
-            // if property is ORID type it needs to be serialized as ORID
-            else if (valueType.IsClass && (valueType.Name == "ORID"))
+            // if property is Orid type it needs to be serialized as Orid
+            else if (valueType.IsClass && (valueType.Name == "Orid"))
             {
-                bld.Append(((ORID)value).RID);
+                bld.Append((Orid)value);
             }
             else if (valueType.IsClass && (valueType.Name == "ODocument"))
             {
@@ -225,7 +225,7 @@ namespace Orient.Client.Protocol.Serializers
                 {
                     BinaryBuffer buffer = new BinaryBuffer();
                     bld.Append("%");
-                    buffer.Write((byte)1); // config
+                    buffer.Write(1); // config
                     buffer.Write(ridbag.Count); //size
                     foreach (var item in ridbag)
                     {
@@ -263,7 +263,7 @@ namespace Orient.Client.Protocol.Serializers
 
             fieldName = fieldName.Replace("\"", "");
 
-            document.Add(fieldName, null);
+            document.SetField<string>(fieldName, null);
 
             // move to position after colon (:)
             i++;
@@ -333,7 +333,7 @@ namespace Orient.Client.Protocol.Serializers
                 // \ -> \\
                 // therefore there needs to be a check for valid end of the string which
                 // is quote character that is not preceeded by backslash character \
-                if ((recordString[i] == '\\') && (recordString[i + 1] == '\\' || recordString[i + 1] == '"'))
+                if ((recordString[i] == '\\') && (recordString[i + 1] == '"'))
                 {
                     i = i + 2;
                 }
@@ -389,25 +389,25 @@ namespace Orient.Client.Protocol.Serializers
             //assign field value
             if (document[fieldName] == null)
             {
-                // there is a special case when OEdge InV/OutV fields contains only single ORID instead of HashSet<ORID>
-                // therefore single ORID should be deserialized into HashSet<ORID> type
+                // there is a special case when OEdge InV/OutV fields contains only single Orid instead of HashSet<Orid>
+                // therefore single Orid should be deserialized into HashSet<Orid> type
                 if (fieldName.Equals("in_") || fieldName.Equals("out_"))
                 {
-                    document[fieldName] = new HashSet<ORID>();
-                    ((HashSet<ORID>)document[fieldName]).Add(new ORID(recordString, startIndex));
+                    document[fieldName] = new HashSet<Orid>();
+                    ((HashSet<Orid>)document[fieldName]).Add(Orid.Parse(recordString, startIndex));
                 }
                 else
                 {
-                    document[fieldName] = new ORID(recordString, startIndex);
+                    document[fieldName] = Orid.Parse(recordString, startIndex);
                 }
             }
             else if (document[fieldName] is HashSet<object>)
             {
-                ((HashSet<object>)document[fieldName]).Add(new ORID(recordString, startIndex));
+                ((HashSet<object>)document[fieldName]).Add(Orid.Parse(recordString, startIndex));
             }
             else
             {
-                ((List<object>)document[fieldName]).Add(new ORID(recordString, startIndex));
+                ((List<object>)document[fieldName]).Add(Orid.Parse(recordString, startIndex));
             }
 
             return i;
@@ -531,12 +531,7 @@ namespace Orient.Client.Protocol.Serializers
                 // boolean
                 else if ((stringValue.Length > 2) && (stringValue == "true") || (stringValue == "false"))
                 {
-                    value = (stringValue == "true") ? true : false;
-                }
-                // null
-                else if ((stringValue.Length > 2) && (stringValue == "null"))
-                {
-                    value = null;
+                    value = (stringValue == "true");
                 }
                 // numbers
                 else
@@ -625,7 +620,7 @@ namespace Orient.Client.Protocol.Serializers
             }
 
             // use a list as it preserves order at this stage which may be important when using ordered edges
-            var rids = new List<ORID>();
+            var rids = new List<Orid>();
 
             var value = Convert.FromBase64String(builder.ToString());
             using (var stream = new MemoryStream(value))
@@ -646,7 +641,7 @@ namespace Orient.Client.Protocol.Serializers
                     {
                         var clusterid = reader.ReadInt16EndianAware();
                         var clusterposition = reader.ReadInt64EndianAware();
-                        rids.Add(new ORID(clusterid, clusterposition));
+                        rids.Add(new Orid(clusterid, clusterposition));
                     }
                 }
                 else
@@ -671,11 +666,12 @@ namespace Orient.Client.Protocol.Serializers
                     if (size > 0)
                     {
                         // Changes - (changesSize:int)[(link:rid)(changeType:byte)(value:int)]*
+                        // ReSharper disable once UnusedVariable
                         var changesSize = reader.ReadInt32EndianAware();
-                        for (int j = 0; j < changesSize; j++)
-                        {
-                            throw new NotImplementedException("RidBag Changes not yet implemented");
-                        }
+                        //for (int j = 0; j < changesSize; j++)
+                        //{
+                        //    throw new NotImplementedException("RidBag Changes not yet implemented");
+                        //}
 
                         var operation = new SBTreeBonsaiFirstKey(null);
                         operation.FileId = fileId;
@@ -686,12 +682,12 @@ namespace Orient.Client.Protocol.Serializers
                         // Not realy quiete about this
                         var connection = OClient.ReleaseConnection(_connection.Alias);
 
-                        var entries = new Dictionary<ORID, int>();
+                        var entries = new Dictionary<Orid, int>();
                         try
                         {
-                            var orid = connection.ExecuteOperation(operation);
+                            var Orid = connection.ExecuteOperation(operation);
                             var ft = true;
-                            var key = orid.GetField<ORID>("rid");
+                            var key = Orid.GetField<Orid>("rid");
                             do
                             {
                                 var op = new SBTreeBonsaiGetEntriesMajor(null);
@@ -702,7 +698,7 @@ namespace Orient.Client.Protocol.Serializers
                                 op.Inclusive = ft;
 
                                 var res = connection.ExecuteOperation(op);
-                                entries = res.GetField<Dictionary<ORID, int>>("entries");
+                                entries = res.GetField<Dictionary<Orid, int>>("entries");
 
                                 rids.AddRange(entries.Keys);
 
@@ -735,7 +731,7 @@ namespace Orient.Client.Protocol.Serializers
             i++;
 
 
-            if ((i < 15) && (recordString.Length > 15) && (recordString.Substring(i, 15).Equals("ORIDs@pageSize:")))
+            if ((i < 15) && (recordString.Length > 15) && (recordString.Substring(i, 15).Equals("Orids@pageSize:")))
             {
                 OLinkCollection linkCollection = new OLinkCollection();
                 i = ParseLinkCollection(i, recordString, linkCollection);
@@ -787,7 +783,7 @@ namespace Orient.Client.Protocol.Serializers
             i = index + 6;
             index = recordString.IndexOf(',', i);
 
-            linkCollection.Root = new ORID(recordString.Substring(i, index - i));
+            linkCollection.Root = new Orid(recordString.Substring(i, index - i));
 
             // move to keySize value
             i = index + 9;

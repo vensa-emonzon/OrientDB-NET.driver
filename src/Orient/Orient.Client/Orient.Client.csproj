@@ -44,6 +44,9 @@
     <Compile Include="API\Exceptions\OException.cs" />
     <Compile Include="API\Exceptions\OExceptionType.cs" />
     <Compile Include="API\OTransaction.cs" />
+    <Compile Include="API\Query\OSqlAlter.cs" />
+    <Compile Include="API\Query\OSqlDeleteClass.cs" />
+    <Compile Include="API\Query\OSqlTruncate.cs" />
     <Compile Include="API\Query\PreparedCommand.cs" />
     <Compile Include="API\Query\Interfaces\IOCreateCluster.cs" />
     <Compile Include="API\Query\Interfaces\IOCreateEdge.cs" />
@@ -64,6 +67,7 @@
     <Compile Include="API\Query\PreparedQuery.cs" />
     <Compile Include="API\Types\DatabaseInfo.cs" />
     <Compile Include="API\Types\IBaseRecord.cs" />
+    <Compile Include="API\Types\ICreationContext.cs" />
     <Compile Include="API\Types\OBaseRecord.cs" />
     <Compile Include="API\Types\OEdge.cs" />
     <Compile Include="API\Types\OEmbeddedRidBag.cs" />
@@ -111,7 +115,11 @@
     <Compile Include="Mapping\HashSetNamedFieldMapping.cs" />
     <Compile Include="Mapping\LongFieldMapping.cs" />
     <Compile Include="Mapping\NullableTimeSpanFieldMapping.cs" />
+    <Compile Include="Mapping\OClassIdFieldMapping.cs" />
+    <Compile Include="Mapping\OClassNameFieldMapping.cs" />
     <Compile Include="Mapping\ORIDFieldMapping.cs" />
+    <Compile Include="Mapping\OTypeFieldMapping.cs" />
+    <Compile Include="Mapping\OVersionFieldMapping.cs" />
     <Compile Include="Mapping\ShortFieldMapping.cs" />
     <Compile Include="Mapping\TimeSpanFieldMapping.cs" />
     <Compile Include="Mapping\TypeMapper.cs" />

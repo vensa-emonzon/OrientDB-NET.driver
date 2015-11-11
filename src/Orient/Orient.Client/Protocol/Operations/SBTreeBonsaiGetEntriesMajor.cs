@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Orient.Client.Protocol.Serializers;
 
 namespace Orient.Client.Protocol.Operations
@@ -11,7 +9,7 @@ namespace Orient.Client.Protocol.Operations
         internal long FileId;
         internal long PageIndex;
         internal int PageOffset;
-        internal ORID FirstKey;
+        internal Orid FirstKey;
         internal bool Inclusive;
 
         public SBTreeBonsaiGetEntriesMajor(ODatabase database)
@@ -35,10 +33,10 @@ namespace Orient.Client.Protocol.Operations
             // key binary
             var cid = BinarySerializer.ToArray(FirstKey.ClusterId);
             var cpos = BinarySerializer.ToArray(FirstKey.ClusterPosition);
-            byte[] orid = new byte[cid.Length + cpos.Length];
-            Array.Copy(cid, orid, cid.Length);
-            Array.Copy(cpos, 0, orid, cid.Length, cpos.Length);
-            request.AddDataItem(orid);
+            byte[] Orid = new byte[cid.Length + cpos.Length];
+            Array.Copy(cid, Orid, cid.Length);
+            Array.Copy(cpos, 0, Orid, cid.Length, cpos.Length);
+            request.AddDataItem(Orid);
 
             // inclusive
             request.AddDataItem((byte)(Inclusive ? 1 : 0)); // 0 - false 1 - true
@@ -52,7 +50,7 @@ namespace Orient.Client.Protocol.Operations
 
         public override ODocument Response(Response response)
         {
-            Dictionary<ORID, int> entries = new Dictionary<ORID, int>();
+            Dictionary<Orid, int> entries = new Dictionary<Orid, int>();
 
             ODocument document = new ODocument();
             if (response == null)
@@ -72,14 +70,14 @@ namespace Orient.Client.Protocol.Operations
                 // key
                 short clusterId = reader.ReadInt16EndianAware();
                 long clusterPosition = reader.ReadInt64EndianAware();
-                var rid = new ORID(clusterId, clusterPosition);
+                var rid = new Orid(clusterId, clusterPosition);
 
                 // value
                 var value = reader.ReadInt32EndianAware();
 
                 entries.Add(rid, value);
             }
-            document.SetField<Dictionary<ORID, int>>("entries", entries);
+            document.SetField<Dictionary<Orid, int>>("entries", entries);
             return document;
         }
     }

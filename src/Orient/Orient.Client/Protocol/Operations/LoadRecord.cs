@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using Orient.Client.Protocol.Serializers;
 
 namespace Orient.Client.Protocol.Operations
 {
@@ -15,10 +10,10 @@ namespace Orient.Client.Protocol.Operations
         {
             _operationType = OperationType.RECORD_LOAD;
         }
-        private readonly ORID _orid;
+        private readonly Orid _orid;
         private readonly string _fetchPlan;
 
-        public LoadRecord(ORID orid, string fetchPlan, ODatabase database)
+        public LoadRecord(Orid orid, string fetchPlan, ODatabase database)
             : this(database)
         {
             _orid = orid;
@@ -99,11 +94,11 @@ namespace Orient.Client.Protocol.Operations
             var recordLength = reader.ReadInt32EndianAware();
             var record = reader.ReadBytes(recordLength);
 
-            //var document = RecordCSVSerializer.Deserialize(new ORID(clusterId, clusterPosition), recordVersion, ORecordType.Document, 0, record);
+            //var document = RecordCSVSerializer.Deserialize(new Orid(clusterId, clusterPosition), recordVersion, ORecordType.Document, 0, record);
             var document = Serializer
-                .Deserialize(record, new ODocument { ORID = new ORID(clusterId, clusterPosition), OVersion = recordVersion, OType = ORecordType.Document });
+                .Deserialize(record, new ODocument { Orid = new Orid(clusterId, clusterPosition), OVersion = recordVersion, OType = ORecordType.Document });
 
-            _database.ClientCache[document.ORID] = document;
+            _database.ClientCache[document.Orid] = document;
         }
 
         private void ReadPrimaryResult(ODocument responseDocument, BinaryReader reader)
@@ -135,7 +130,7 @@ namespace Orient.Client.Protocol.Operations
             {
                 case ORecordType.Document:
                     document = Serializer.Deserialize(readBytes, new ODocument());
-                    document.ORID = _orid;
+                    document.Orid = _orid;
                     document.OVersion = version;
                     responseDocument.SetField("Content", document);
                     break;

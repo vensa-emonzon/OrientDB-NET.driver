@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Orient.Client.Protocol.Operations
 {
+    // ReSharper disable once UnusedMember.Global
     internal class RecordUpdate : BaseOperation
     {
         private readonly ODocument _document;
@@ -21,15 +19,15 @@ namespace Orient.Client.Protocol.Operations
         {
             base.Request(request);
 
-            if (_document.ORID != null)
+            if (_document.Orid != Orid.Null)
                 throw new InvalidOperationException();
 
             CorrectClassName();
 
-            request.AddDataItem(_document.ORID);
+            request.AddDataItem(_document.Orid);
             if (OClient.ProtocolVersion >= 23)
             {
-                request.AddDataItem((int)1);  // update content  1 - true , 0 - false
+                request.AddDataItem(1);  // update content  1 - true , 0 - false
             }
 
             request.AddDataItem(Serializer.Serialize(_document));
@@ -59,16 +57,17 @@ namespace Orient.Client.Protocol.Operations
             // Work around differents in storage type < version 2.0
             if (_database.ProtocolVersion >= 28 || (_database.ProtocolVersion >= 20 && _database.ProtocolVersion <= 27 && !EndOfStream(reader)))
             {
+                // ReSharper disable once UnusedVariable
                 int collectionChangesCount = reader.ReadInt32EndianAware();
-                for (var i = 0; i < collectionChangesCount; i++)
-                {
-                    throw new NotImplementedException("Collection changes not yet handled - failing rather than ignoring potentially significant information");
-                    //var mostSigBits = reader.ReadInt64EndianAware();
-                    //var leastSigBits = reader.ReadInt64EndianAware();
-                    //var updatedFileId = reader.ReadInt64EndianAware();
-                    //var updatedPageIndex = reader.ReadInt64EndianAware();
-                    //var updatedPageOffset = reader.ReadInt32EndianAware();
-                }
+                //for (var i = 0; i < collectionChangesCount; i++)
+                //{
+                //    throw new NotImplementedException("Collection changes not yet handled - failing rather than ignoring potentially significant information");
+                //    //var mostSigBits = reader.ReadInt64EndianAware();
+                //    //var leastSigBits = reader.ReadInt64EndianAware();
+                //    //var updatedFileId = reader.ReadInt64EndianAware();
+                //    //var updatedPageIndex = reader.ReadInt64EndianAware();
+                //    //var updatedPageOffset = reader.ReadInt32EndianAware();
+                //}
             }
             return responseDocument;
         }

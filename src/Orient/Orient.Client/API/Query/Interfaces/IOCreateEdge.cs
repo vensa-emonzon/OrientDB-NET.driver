@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Orient.Client.API.Query.Interfaces
+﻿namespace Orient.Client.API.Query.Interfaces
 {
     public interface IOCreateEdge
     {
@@ -12,9 +7,9 @@ namespace Orient.Client.API.Query.Interfaces
         IOCreateEdge Edge<T>();
         IOCreateEdge Cluster(string clusterName);
         IOCreateEdge Cluster<T>();
-        IOCreateEdge From(ORID orid);
+        IOCreateEdge From(Orid Orid);
         IOCreateEdge From<T>(T obj);
-        IOCreateEdge To(ORID orid);
+        IOCreateEdge To(Orid Orid);
         IOCreateEdge To<T>(T obj);
         IOCreateEdge Set<T>(string fieldName, T fieldValue);
         IOCreateEdge Set<T>(T obj);

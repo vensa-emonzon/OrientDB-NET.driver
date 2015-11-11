@@ -66,16 +66,16 @@ namespace Orient.Client
 
         #region Record
 
-        public OSqlDeleteDocument Record(ORID orid)
+        public OSqlDeleteDocument Record(Orid Orid)
         {
-            _sqlQuery.Record(orid);
+            _sqlQuery.Record(Orid);
 
             return this;
         }
 
         public OSqlDeleteDocument Record(ODocument document)
         {
-            return Record(document.ORID);
+            return Record(document.Orid);
         }
 
         #endregion

@@ -12,8 +12,8 @@ namespace Orient.Client
 {
     public class OSqlInsert : IOInsert
     {
-        private SqlQuery _sqlQuery;
-        private Connection _connection;
+        private readonly SqlQuery _sqlQuery;
+        private readonly Connection _connection;
 
         public OSqlInsert()
         {
@@ -87,7 +87,7 @@ namespace Orient.Client
 
         public IOInsert Set<T>(string fieldName, T fieldValue)
         {
-            _sqlQuery.Set<T>(fieldName, fieldValue);
+            _sqlQuery.Set(fieldName, fieldValue);
 
             return this;
         }
@@ -105,21 +105,19 @@ namespace Orient.Client
 
         public ODocument Run()
         {
-            CommandPayloadCommand payload = new CommandPayloadCommand();
-            payload.Text = ToString();
+            var operation = new Command(_connection.Database)
+                                {
+                                    OperationMode = OperationMode.Synchronous,
+                                    CommandPayload = new CommandPayloadCommand { Text = ToString() }
+                                };
 
-            Command operation = new Command(_connection.Database);
-            operation.OperationMode = OperationMode.Synchronous;
-            operation.CommandPayload = payload;
-
-            OCommandResult result = new OCommandResult(_connection.ExecuteOperation(operation));
-
+            var result = new OCommandResult(_connection.ExecuteOperation(operation));
             return result.ToSingle();
         }
 
         public T Run<T>() where T : class, new() 
         {
-            return Run().To<T>();
+            return Run()?.To<T>();
         }
 
         #endregion

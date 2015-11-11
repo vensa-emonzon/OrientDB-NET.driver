@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Orient.Client.API.Query.Interfaces;
+﻿using Orient.Client.API.Query.Interfaces;
 using Orient.Client.Protocol;
 using Orient.Client.Protocol.Operations;
 using Orient.Client.Protocol.Operations.Command;
@@ -92,9 +91,9 @@ namespace Orient.Client
 
         #region From
 
-        public IOCreateEdge From(ORID orid)
+        public IOCreateEdge From(Orid Orid)
         {
-            _sqlQuery.From(orid);
+            _sqlQuery.From(Orid);
 
             return this;
         }
@@ -112,12 +111,12 @@ namespace Orient.Client
                 document = ODocument.ToDocument(obj);
             }
 
-            if (document.ORID == null)
+            if (document.Orid == Orid.Null)
             {
-                throw new OException(OExceptionType.Query, "Document doesn't contain ORID value.");
+                throw new OException(OExceptionType.Query, "Document doesn't contain Orid value.");
             }
 
-            _sqlQuery.From(document.ORID);
+            _sqlQuery.From(document.Orid);
 
             return this;
         }
@@ -126,9 +125,9 @@ namespace Orient.Client
 
         #region To
 
-        public IOCreateEdge To(ORID orid)
+        public IOCreateEdge To(Orid Orid)
         {
-            _sqlQuery.To(orid);
+            _sqlQuery.To(Orid);
 
             return this;
         }
@@ -146,12 +145,12 @@ namespace Orient.Client
                 document = ODocument.ToDocument(obj);
             }
             
-            if (document.ORID == null)
+            if (document.Orid == Orid.Null)
             {
-                throw new OException(OExceptionType.Query, "Document doesn't contain ORID value.");
+                throw new OException(OExceptionType.Query, "Document doesn't contain Orid value.");
             }
 
-            _sqlQuery.To(document.ORID);
+            _sqlQuery.To(document.Orid);
 
             return this;
         }
@@ -183,13 +182,14 @@ namespace Orient.Client
             CommandPayloadCommand payload = new CommandPayloadCommand();
             payload.Text = ToString();
 
-            Command operation = new Command(_connection.Database);
-            operation.OperationMode = OperationMode.Synchronous;
-            operation.CommandPayload = payload;
+            var operation = new Command(_connection.Database)
+                                {
+                                    OperationMode = OperationMode.Synchronous,
+                                    CommandPayload = payload
+                                };
 
-            OCommandResult result = new OCommandResult(_connection.ExecuteOperation(operation));
-
-            return result.ToSingle().To<OEdge>();
+            var result = new OCommandResult(_connection.ExecuteOperation(operation));
+            return result.ToSingle()?.To<OEdge>();
         }
 
         public T Run<T>() where T : class, new()

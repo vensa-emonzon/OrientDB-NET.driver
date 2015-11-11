@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Orient.Client.Mapping
 {
@@ -16,8 +13,7 @@ namespace Orient.Client.Mapping
 
         protected override void MapToNamedField(ODocument document, TTarget typedObject)
         {
-            DateTime dateTime = document.GetField<DateTime>(_fieldPath);
-
+            var dateTime = document.GetField<DateTime>(FieldPath);
             SetPropertyValue(typedObject, dateTime);
         }
     }

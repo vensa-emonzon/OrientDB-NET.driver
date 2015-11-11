@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Orient.Client.Protocol;
 using Orient.Client.Protocol.Operations;
 using Orient.Client.Transactions;
+
+// ReSharper disable UnusedMember.Global
 
 namespace Orient.Client.API
 {
@@ -32,7 +33,7 @@ namespace Orient.Client.API
             UseTransactionLog = true;
         }
 
-        private readonly Dictionary<ORID, TransactionRecord> _records = new Dictionary<ORID, TransactionRecord>();
+        private readonly Dictionary<Orid, TransactionRecord> _records = new Dictionary<Orid, TransactionRecord>();
 
         internal bool UseTransactionLog { get; set; }
 
@@ -45,20 +46,20 @@ namespace Orient.Client.API
             CommitTransaction ct = new CommitTransaction(_records.Values.ToList(), _connection.Database);
             ct.UseTransactionLog = UseTransactionLog;
             var result = _connection.ExecuteOperation(ct);
-            Dictionary<ORID, ORID> mapping = result.GetField<Dictionary<ORID, ORID>>("CreatedRecordMapping");
+            Dictionary<Orid, Orid> mapping = result.GetField<Dictionary<Orid, Orid>>("CreatedRecordMapping");
 
             var survivingRecords = _records.Values.Where(x => x.RecordType != RecordType.Delete).ToList();
 
             foreach (var kvp in mapping)
             {
                 var record = _records[kvp.Key];
-                record.ORID = kvp.Value;
-                _records.Add(record.ORID, record);
+                record.Orid = kvp.Value;
+                _records.Add(record.Orid, record);
                 if (record.Document != null)
                     _connection.Database.ClientCache.Add(kvp.Value, record.Document);
             }
 
-            var versions = result.GetField<Dictionary<ORID, int>>("UpdatedRecordVersions");
+            var versions = result.GetField<Dictionary<Orid, int>>("UpdatedRecordVersions");
             foreach (var kvp in versions)
             {
                 var record = _records[kvp.Key];
@@ -69,14 +70,12 @@ namespace Orient.Client.API
             {
                 if (record.Object != null)
                 {
-                    ORIDUpdaterBase.GetInstanceFor(record.Object.GetType()).UpdateORIDs(record.Object, mapping);
+                    OridUpdaterBase.GetInstanceFor(record.Object.GetType()).UpdateOrids(record.Object, mapping);
                 }
                 else
                 {
-                    ORIDUpdaterBase.GetInstanceFor(record.Document.GetType()).UpdateORIDs(record.Document, mapping);
+                    OridUpdaterBase.GetInstanceFor(record.Document.GetType()).UpdateOrids(record.Document, mapping);
                 }
-
-
             }
 
             Reset();
@@ -95,31 +94,31 @@ namespace Orient.Client.API
 
         public void AddEdge(OEdge edge, OVertex from, OVertex to)
         {
-            this.Add(edge);
-            edge.SetField("out", from.ORID);
-            edge.SetField("in", to.ORID);
+            Add(edge);
+            edge.SetField("out", from.Orid);
+            edge.SetField("in", to.Orid);
 
-            appendOridToField(from, "out_" + edge.OClassName, edge.ORID);
-            appendOridToField(to, "in_" + edge.OClassName, edge.ORID);
+            appendOridToField(from, "out_" + edge.OClassName, edge.Orid);
+            appendOridToField(to, "in_" + edge.OClassName, edge.Orid);
 
-            if (!_records.ContainsKey(from.ORID))
+            if (!_records.ContainsKey(from.Orid))
                 Update(from);
 
-            if (!_records.ContainsKey(to.ORID))
+            if (!_records.ContainsKey(to.Orid))
                 Update(to);
         }
 
-        private void appendOridToField(ODocument document, string field, ORID orid)
+        private void appendOridToField(ODocument document, string field, Orid Orid)
         {
-            if (document.HasField(field))
+            if (document.Contains(field))
             {
-                document.GetField<HashSet<ORID>>(field).Add(orid);
+                document.GetField<HashSet<Orid>>(field).Add(Orid);
             }
             else
             {
-                var orids = new HashSet<ORID>();
-                orids.Add(orid);
-                document.SetField(field, orids);
+                var Orids = new HashSet<Orid>();
+                Orids.Add(Orid);
+                document.SetField(field, Orids);
             }
         }
 
@@ -137,7 +136,7 @@ namespace Orient.Client.API
 
         private void Insert(TransactionRecord record)
         {
-            bool hasOrid = record.ORID != null;
+            bool hasOrid = record.Orid != Orid.Null;
             bool needsOrid = record.RecordType != RecordType.Create;
 
             if (hasOrid && !needsOrid)
@@ -148,31 +147,31 @@ namespace Orient.Client.API
 
             if (!hasOrid)
             {
-                record.ORID = CreateTempORID();
-                record.ORID.ClusterId = _connection.Database.GetClusterIdFor(record.OClassName);
+                record.Orid = CreateTempOrid();
+                record.Orid = new Orid(_connection.Database.GetClusterIdFor(record.OClassName), record.Orid.ClusterPosition);
             }
 
-            if (_records.ContainsKey(record.ORID))
+            if (_records.ContainsKey(record.Orid))
             {
-                if (record.RecordType != _records[record.ORID].RecordType)
+                if (record.RecordType != _records[record.Orid].RecordType)
                     throw new InvalidOperationException("Same object already part of transaction with a different CRUD intent");
-                _records[record.ORID] = record;
+                _records[record.Orid] = record;
             }
             else
             {
-                _records.Add(record.ORID, record);
+                _records.Add(record.Orid, record);
             }
         }
 
-        private ORID CreateTempORID()
+        private Orid CreateTempOrid()
         {
-            return new ORID(_tempClusterId, --_tempObjectId);
+            return new Orid(_tempClusterId, --_tempObjectId);
         }
 
-        public T GetPendingObject<T>(ORID orid) where T : IBaseRecord
+        public T GetPendingObject<T>(Orid Orid) where T : IBaseRecord
         {
             TransactionRecord record;
-            if (_records.TryGetValue(orid, out record))
+            if (_records.TryGetValue(Orid, out record))
             {
                 return (T)record.Object;
             }
@@ -181,9 +180,9 @@ namespace Orient.Client.API
 
         public void AddOrUpdate<T>(T target) where T : IBaseRecord
         {
-            if (target.ORID == null)
+            if (target.Orid == Orid.Null)
                 Add(target);
-            else if (!_records.ContainsKey(target.ORID))
+            else if (!_records.ContainsKey(target.Orid))
                 Update(target);
         }
     }

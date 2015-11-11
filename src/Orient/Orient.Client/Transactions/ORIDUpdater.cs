@@ -2,33 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Orient.Client.Transactions
 {
-    internal abstract class ORIDUpdaterBase
+    internal abstract class OridUpdaterBase
     {
-        protected static Type ORIDType = typeof (ORID);
+        protected static Type OridType = typeof (Orid);
 
-        public abstract void UpdateORIDs(object oTarget, Dictionary<ORID, ORID> replacements);
+        public abstract void UpdateOrids(object oTarget, Dictionary<Orid, Orid> replacements);
 
-        public static ORIDUpdaterBase GetInstanceFor(Type t)
+        public static OridUpdaterBase GetInstanceFor(Type t)
         {
-            var mappingType = typeof(ORIDUpdater<>).MakeGenericType(t);
+            var mappingType = typeof(OridUpdater<>).MakeGenericType(t);
             PropertyInfo propertyInfo = mappingType.GetProperty("Instance", BindingFlags.Static | BindingFlags.Public);
-            return (ORIDUpdaterBase)propertyInfo.GetValue(null, null);
+            return (OridUpdaterBase)propertyInfo.GetValue(null, null);
         }
     }
 
 
-    class ORIDUpdater<T> : ORIDUpdaterBase
+    class OridUpdater<T> : OridUpdaterBase
     {
-        private static readonly ORIDUpdater<T> _instance = new ORIDUpdater<T>();
-        public static ORIDUpdater<T> Instance { get { return _instance; } }
+        private static readonly OridUpdater<T> _instance = new OridUpdater<T>();
+        public static OridUpdater<T> Instance { get { return _instance; } }
 
-        readonly List<IORIDPropertyUpdater> _fields = new List<IORIDPropertyUpdater>();
+        readonly List<IOridPropertyUpdater> _fields = new List<IOridPropertyUpdater>();
 
-        private ORIDUpdater()
+        private OridUpdater()
         {
             Type genericObjectType = typeof(T);
 
@@ -53,24 +52,24 @@ namespace Orient.Client.Transactions
                     }
                 }
 
-                if (propertyType == ORIDType && propertyInfo.CanWrite)
-                    _fields.Add(new ORIDSimplePropertyUpdater<T>(propertyInfo));
+                if (propertyType == OridType && propertyInfo.CanWrite)
+                    _fields.Add(new OridSimplePropertyUpdater<T>(propertyInfo));
 
-                if (propertyType.IsArray && propertyType.GetElementType() == ORIDType)
-                    _fields.Add(new ORIDArrayPropertyUpdater<T>(propertyInfo));
+                if (propertyType.IsArray && propertyType.GetElementType() == OridType)
+                    _fields.Add(new OridArrayPropertyUpdater<T>(propertyInfo));
 
-                if (propertyType.IsGenericType && propertyType.GetGenericArguments().First() == ORIDType)
+                if (propertyType.IsGenericType && propertyType.GetGenericArguments().First() == OridType)
                 {
                     switch (propertyType.Name)
                     {
                         case "HashSet`1":
-                            _fields.Add(new ORIDHashSetUpdater<T>(propertyInfo));
+                            _fields.Add(new OridHashSetUpdater<T>(propertyInfo));
                             break;
                         case "List`1":
-                            _fields.Add(new ORIDListPropertyUpdater<T>(propertyInfo));
+                            _fields.Add(new OridListPropertyUpdater<T>(propertyInfo));
                             break;
                         default:
-                            throw new NotImplementedException("Generic ORID collection not handled.");
+                            throw new NotImplementedException("Generic Orid collection not handled.");
                     }
                     
                 }
@@ -78,7 +77,7 @@ namespace Orient.Client.Transactions
             }
         }
 
-        public override void UpdateORIDs(object oTarget,  Dictionary<ORID, ORID> replacements)
+        public override void UpdateOrids(object oTarget,  Dictionary<Orid, Orid> replacements)
         {
             foreach (var field in _fields)
                 field.Update(oTarget, replacements);

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Orient.Client.Protocol.Serializers;
+﻿using System.Collections.Generic;
 
 namespace Orient.Client.Protocol.Operations
 {

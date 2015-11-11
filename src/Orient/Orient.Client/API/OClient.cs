@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Orient.Client.API.Types;
 using Orient.Client.Protocol;
-using Orient.Client.Protocol.Serializers;
 
 namespace Orient.Client
 {
@@ -24,7 +23,7 @@ namespace Orient.Client
             }
         }
 
-        public static int BufferLenght { get; set; }
+        public static int BufferLength { get; set; }
         public static ORecordFormat Serializer { get; set; }
         public static bool UseTokenBasedSession { get; set; }
 
@@ -34,7 +33,7 @@ namespace Orient.Client
         {
             _syncRoot = new object();
             _databasePools = new List<DatabasePool>();
-            BufferLenght = 1024;
+            BufferLength = 1024;
             Serializer = ORecordFormat.ORecordDocument2csv;
             ClientID = "null";
             /* 
@@ -57,7 +56,7 @@ namespace Orient.Client
 
         public static string CreateDatabasePool(string hostname, int port, string databaseName, ODatabaseType databaseType, string userName, string userPassword, int poolSize, string alias, string clientID = "null")
         {
-            OClient.ClientID = clientID;
+            ClientID = clientID;
 
             lock (_syncRoot)
             {

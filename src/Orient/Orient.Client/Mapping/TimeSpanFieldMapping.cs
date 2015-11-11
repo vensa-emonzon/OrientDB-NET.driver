@@ -16,7 +16,7 @@ namespace Orient.Client.Mapping
 
         protected override void MapToNamedField(ODocument document, TTarget typedObject)
         {
-            TimeSpan timeSpan = document.GetField<TimeSpan>(_fieldPath);
+            TimeSpan timeSpan = document.GetField<TimeSpan>(FieldPath);
 
             SetPropertyValue(typedObject, timeSpan);
         }

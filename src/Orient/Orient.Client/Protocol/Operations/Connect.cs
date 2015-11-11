@@ -1,8 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-using System.Text;
-using Orient.Client.API.Types;
-using Orient.Client.Protocol.Serializers;
+﻿using Orient.Client.API.Types;
 
 namespace Orient.Client.Protocol.Operations
 {

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Orient.Client.Mapping
 {
@@ -17,7 +13,7 @@ namespace Orient.Client.Mapping
 
         protected override void MapToNamedField(ODocument document, TTarget typedObject)
         {
-            var value = Enum.Parse(_propertyInfo.PropertyType, document.GetField<string>(_fieldPath), true);
+            var value = Enum.Parse(PropertyInfo.PropertyType, document.GetField<string>(FieldPath), true);
             SetPropertyValue(typedObject, value);
         }
     }

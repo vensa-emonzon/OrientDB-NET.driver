@@ -5,18 +5,18 @@ using Orient.Client.Mapping;
 
 namespace Orient.Client.Transactions
 {
-    internal interface IORIDPropertyUpdater
+    internal interface IOridPropertyUpdater
     {
-        void Update(object oTarget, Dictionary<ORID, ORID> mappings);
+        void Update(object oTarget, Dictionary<Orid, Orid> mappings);
     }
 
-    internal abstract class ORIDPropertyUpdater<TTarget, T> : IORIDPropertyUpdater
+    internal abstract class OridPropertyUpdater<TTarget, T> : IOridPropertyUpdater
     {
         private readonly PropertyInfo _propertyInfo;
         private Action<TTarget, T> _setter;
         private Func<TTarget, T> _getter;
 
-        protected ORIDPropertyUpdater(PropertyInfo propertyInfo)
+        protected OridPropertyUpdater(PropertyInfo propertyInfo)
         {
             _propertyInfo = propertyInfo;
             if (propertyInfo != null)
@@ -37,6 +37,6 @@ namespace Orient.Client.Transactions
             _setter((TTarget) oTarget, value);
         }
 
-        public abstract void Update(object oTarget, Dictionary<ORID, ORID> mappings);
+        public abstract void Update(object oTarget, Dictionary<Orid, Orid> mappings);
     }
 }

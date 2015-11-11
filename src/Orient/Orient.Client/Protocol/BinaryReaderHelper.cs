@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
+
+// ReSharper disable UnusedMember.Global
 
 namespace Orient.Client.Protocol
 {
@@ -53,7 +53,7 @@ namespace Orient.Client.Protocol
             var result = binRdr.ReadBytes(byteCount);
 
             if (result.Length != byteCount)
-                throw new EndOfStreamException(string.Format("{0} bytes required from stream, but only {1} returned.", byteCount, result.Length));
+                throw new EndOfStreamException($"{byteCount} bytes required from stream, but only {result.Length} returned.");
 
             return result;
         }
@@ -65,15 +65,7 @@ namespace Orient.Client.Protocol
             if (length < 0)
                 return null;
 
-            return System.Text.Encoding.Default.GetString(binRdr.ReadBytes(length));
-        }
-
-        public static ORID ReadRid(this BinaryReader binRdr)
-        {
-            ORID orid = new ORID();
-            orid.ClusterId = binRdr.ReadInt16EndianAware();
-            orid.ClusterPosition = binRdr.ReadInt64EndianAware();
-            return orid;
+            return Encoding.Default.GetString(binRdr.ReadBytes(length));
         }
     }
 }

@@ -12,8 +12,8 @@ namespace Orient.Client
 {
     public class OSqlCreateVertex : IOCreateVertex
     {
-        private SqlQuery _sqlQuery;
-        private Connection _connection;
+        private readonly SqlQuery _sqlQuery;
+        private readonly Connection _connection;
 
         public OSqlCreateVertex()
         {
@@ -85,7 +85,7 @@ namespace Orient.Client
 
         public IOCreateVertex Set<T>(string fieldName, T fieldValue)
         {
-            _sqlQuery.Set<T>(fieldName, fieldValue);
+            _sqlQuery.Set(fieldName, fieldValue);
 
             return this;
         }
@@ -103,16 +103,14 @@ namespace Orient.Client
 
         public OVertex Run()
         {
-            CommandPayloadCommand payload = new CommandPayloadCommand();
-            payload.Text = ToString();
+            var operation = new Command(_connection.Database)
+                                {
+                                    OperationMode = OperationMode.Synchronous,
+                                    CommandPayload = new CommandPayloadCommand { Text = ToString() }
+                                };
 
-            Command operation = new Command(_connection.Database);
-            operation.OperationMode = OperationMode.Synchronous;
-            operation.CommandPayload = payload;
-
-            OCommandResult result = new OCommandResult(_connection.ExecuteOperation(operation));
-
-            return result.ToSingle().To<OVertex>();
+            var result = new OCommandResult(_connection.ExecuteOperation(operation));
+            return result.ToSingle()?.To<OVertex>();
         }
 
         public T Run<T>() where T : class, new()

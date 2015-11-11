@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using Orient.Client.API.Types;
-using Orient.Client.Protocol;
-using Orient.Client.Protocol.Serializers;
+using System.Text;
 
 namespace Orient.Client.Protocol.Operations.Command
 {
@@ -39,7 +36,7 @@ namespace Orient.Client.Protocol.Operations.Command
 
                 if (queryPayload.SerializedParams == null || queryPayload.SerializedParams.Length == 0)
                 {
-                    request.AddDataItem((int)0);
+                    request.AddDataItem(0);
                 }
                 else
                 {
@@ -124,11 +121,10 @@ namespace Orient.Client.Protocol.Operations.Command
                         case PayloadStatus.ResultSet:
                             documents.Add(document);
                             break;
+
                         case PayloadStatus.PreFetched:
                             //client cache
-                            response.Connection.Database.ClientCache[document.ORID] = document;
-                            break;
-                        default:
+                            response.Connection.Database.ClientCache[document.Orid] = document;
                             break;
                     }
 
@@ -139,25 +135,25 @@ namespace Orient.Client.Protocol.Operations.Command
             }
             else
             {
-                int contentLength;
-
                 switch (payloadStatus)
                 {
                     case PayloadStatus.NullResult: // 'n'
                         // nothing to do
                         break;
+
                     case PayloadStatus.SingleRecord: // 'r'
                         ODocument document = ParseDocument(reader);
                         responseDocument.SetField("Content", document);
                         break;
+
                     case PayloadStatus.SerializedResult: // 'a'
-                        contentLength = reader.ReadInt32EndianAware();
-                        string serialized = System.Text.Encoding.Default.GetString(reader.ReadBytes(contentLength));
+                        int contentLength = reader.ReadInt32EndianAware();
+                        string serialized = Encoding.Default.GetString(reader.ReadBytes(contentLength));
                         responseDocument.SetField("Content", serialized);
                         break;
+
                     case PayloadStatus.RecordCollection: // 'l'
                         List<ODocument> documents = new List<ODocument>();
-
                         int recordsCount = reader.ReadInt32EndianAware();
 
                         for (int i = 0; i < recordsCount; i++)
@@ -166,8 +162,6 @@ namespace Orient.Client.Protocol.Operations.Command
                         }
 
                         responseDocument.SetField("Content", documents);
-                        break;
-                    default:
                         break;
                 }
 
@@ -180,7 +174,7 @@ namespace Orient.Client.Protocol.Operations.Command
                         if (document != null && payloadStatus == PayloadStatus.PreFetched)
                         {
                             //Put in the client local cache
-                            response.Connection.Database.ClientCache[document.ORID] = document;
+                            response.Connection.Database.ClientCache[document.Orid] = document;
                         }
                     }
                 }
@@ -200,29 +194,21 @@ namespace Orient.Client.Protocol.Operations.Command
             }
             else if (classId == -3) // record id
             {
-                ORID orid = new ORID();
-                orid.ClusterId = reader.ReadInt16EndianAware();
-                orid.ClusterPosition = reader.ReadInt64EndianAware();
-
-                document = new ODocument();
-                document.ORID = orid;
-                document.OClassId = classId;
+                Orid orid = Orid.Parse(reader);
+                document = new ODocument { Orid = orid, OClassId = classId };
             }
             else
             {
+                // ReSharper disable once UnusedVariable
                 ORecordType type = (ORecordType)reader.ReadByte();
 
-                ORID orid = new ORID();
-                orid.ClusterId = reader.ReadInt16EndianAware();
-                orid.ClusterPosition = reader.ReadInt64EndianAware();
+                Orid orid = Orid.Parse(reader);
                 int version = reader.ReadInt32EndianAware();
                 int recordLength = reader.ReadInt32EndianAware();
                 byte[] rawRecord = reader.ReadBytes(recordLength);
 
-                document = new ODocument { ORID = orid, OVersion = version, OType = ORecordType.Document, OClassId = classId };
-
+                document = new ODocument { Orid = orid, OVersion = version, OType = ORecordType.Document, OClassId = classId };
                 document = Serializer.Deserialize(rawRecord, document);
-
             }
 
             return document;

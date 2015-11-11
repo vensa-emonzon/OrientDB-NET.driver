@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Orient.Client.Protocol.Serializers;
 
 namespace Orient.Client.Protocol.Operations
 {
@@ -22,14 +18,14 @@ namespace Orient.Client.Protocol.Operations
 
         public override Request Request(Request request)
         {
-            //if (_document.ORID != null)
+            //if (_document.Orid != Orid.Null)
             //    throw new InvalidOperationException();
 
             //CorrectClassName();
 
             //string className = _document.OClassName.ToLower();
             //var clusterId = _database.GetClusters().First(x => x.Name == className).Id;
-            //_document.ORID = new ORID(clusterId, -1);
+            //_document.Orid = new Orid(clusterId, -1);
 
             base.Request(request);
             int transactionId = 1;
@@ -58,21 +54,21 @@ namespace Orient.Client.Protocol.Operations
             if (response.Connection.ProtocolVersion > 26 && response.Connection.UseTokenBasedSession)
                 ReadToken(reader);
 
-            var createdRecordMapping = new Dictionary<ORID, ORID>();
+            var createdRecordMapping = new Dictionary<Orid, Orid>();
             int recordCount = reader.ReadInt32EndianAware();
             for (int i = 0; i < recordCount; i++)
             {
-                var tempORID = ReadORID(reader);
-                var realORID = ReadORID(reader);
-                createdRecordMapping.Add(tempORID, realORID);
+                var tempOrid = Orid.Parse(reader);
+                var realOrid = Orid.Parse(reader);
+                createdRecordMapping.Add(tempOrid, realOrid);
             }
             responseDocument.SetField("CreatedRecordMapping", createdRecordMapping);
 
             int updatedCount = reader.ReadInt32EndianAware();
-            var updateRecordVersions = new Dictionary<ORID, int>();
+            var updateRecordVersions = new Dictionary<Orid, int>();
             for (int i = 0; i < updatedCount; i++)
             {
-                var orid = ReadORID(reader);
+                var orid = Orid.Parse(reader);
                 var newVersion = reader.ReadInt32EndianAware();
                 updateRecordVersions.Add(orid, newVersion);
             }
@@ -98,15 +94,6 @@ namespace Orient.Client.Protocol.Operations
 
             return responseDocument;
         }
-
-        private ORID ReadORID(BinaryReader reader)
-        {
-            ORID result = new ORID();
-            result.ClusterId = reader.ReadInt16EndianAware();
-            result.ClusterPosition = reader.ReadInt64EndianAware();
-            return result;
-        }
-
 
         public bool UseTransactionLog { get; set; }
     }

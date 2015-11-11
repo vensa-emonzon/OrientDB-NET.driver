@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Orient.Client.Protocol.Operations
+﻿namespace Orient.Client.Protocol.Operations
 {
     internal class DataClusterAdd : BaseOperation
     {

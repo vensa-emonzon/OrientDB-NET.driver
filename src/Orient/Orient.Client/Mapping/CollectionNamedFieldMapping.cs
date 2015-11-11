@@ -8,20 +8,20 @@ namespace Orient.Client.Mapping
 {
     internal abstract class CollectionNamedFieldMapping<TTarget> : NamedFieldMapping<TTarget>
     {
-        protected TypeMapperBase _mapper;
         private readonly Type _targetElementType;
-        protected bool _needsMapping;
-        protected Func<object> _elementFactory;
+        protected TypeMapperBase Mapper;
+        protected bool NeedsMapping;
+        protected Func<object> ElementFactory;
 
-        public CollectionNamedFieldMapping(PropertyInfo propertyInfo, string fieldPath)
+        protected CollectionNamedFieldMapping(PropertyInfo propertyInfo, string fieldPath)
             : base(propertyInfo, fieldPath)
         {
             _targetElementType = GetTargetElementType();
-            _needsMapping = !NeedsNoConversion(_targetElementType);
-            if (_needsMapping)
+            NeedsMapping = !NeedsNoConversion(_targetElementType);
+            if (NeedsMapping)
             {
-                _mapper = TypeMapperBase.GetInstanceFor(_targetElementType);
-                _elementFactory = FastConstructor.BuildConstructor(_targetElementType);
+                Mapper = TypeMapperBase.GetInstanceFor(_targetElementType);
+                ElementFactory = FastConstructor.BuildConstructor(_targetElementType);
             }
         }
 
@@ -30,8 +30,7 @@ namespace Orient.Client.Mapping
 
         protected override void MapToNamedField(ODocument document, TTarget typedObject)
         {
-
-            object sourcePropertyValue = document.GetField<object>(_fieldPath);
+            object sourcePropertyValue = document.GetField<object>(FieldPath);
 
             var collection = sourcePropertyValue as IList;
 
@@ -41,9 +40,9 @@ namespace Orient.Client.Mapping
                 if (sourcePropertyValue != null)
                 {
                     // TODO: Implement in derived class due Different collection mapings
-                    if (typeof(HashSet<Object>).IsAssignableFrom(sourcePropertyValue.GetType()))
+                    if (typeof(HashSet<object>).IsAssignableFrom(sourcePropertyValue.GetType()))
                     {
-                        foreach (var item in (HashSet<Object>)sourcePropertyValue)
+                        foreach (var item in (HashSet<object>)sourcePropertyValue)
                         {
                             collection.Add(item);
                         }
@@ -62,18 +61,18 @@ namespace Orient.Client.Mapping
             {
                 var t = collection[i];
                 object oMapped = t;
-                if (_needsMapping)
+                if (NeedsMapping)
                 {
                     try
                     {
-                        object element = _elementFactory();
+                        object element = ElementFactory();
 
-                        _mapper.ToObject((ODocument)t, element);
+                        Mapper.ToObject((ODocument)t, element);
                         oMapped = element;
                     }
                     catch
                     {
-                        // FIX: somtimes collection of embeded documents returned as ORID Collection;
+                        // FIX: somtimes collection of embeded documents returned as Orid Collection;
                     }
                 }
 
@@ -85,10 +84,10 @@ namespace Orient.Client.Mapping
 
         private Type GetTargetElementType()
         {
-            if (_propertyInfo.PropertyType.IsArray)
-                return _propertyInfo.PropertyType.GetElementType();
-            if (_propertyInfo.PropertyType.IsGenericType)
-                return _propertyInfo.PropertyType.GetGenericArguments().First();
+            if (PropertyInfo.PropertyType.IsArray)
+                return PropertyInfo.PropertyType.GetElementType();
+            if (PropertyInfo.PropertyType.IsGenericType)
+                return PropertyInfo.PropertyType.GetGenericArguments().First();
 
             throw new NotImplementedException();
 
@@ -100,13 +99,13 @@ namespace Orient.Client.Mapping
                    (elementType == typeof(string)) ||
                    (elementType == typeof(DateTime)) ||
                    (elementType == typeof(decimal)) ||
-                   (elementType == typeof(ORID)) ||
+                   (elementType == typeof(Orid)) ||
                    (elementType.IsValueType);
         }
 
-        public override void MapToDocument(TTarget typedObject, ODocument document)
+        protected override void MapToDocument(TTarget typedObject, ODocument document)
         {
-            var targetElementType = _needsMapping ? typeof(ODocument) : _targetElementType;
+            var targetElementType = NeedsMapping ? typeof(ODocument) : _targetElementType;
             var listType = typeof(List<>).MakeGenericType(targetElementType);
             var targetList = (IList)Activator.CreateInstance(listType);
 
@@ -114,10 +113,10 @@ namespace Orient.Client.Mapping
             if (sourceList != null)
             {
                 foreach (var item in sourceList)
-                    targetList.Add(_needsMapping ? _mapper.ToDocument(item) : item);
+                    targetList.Add(NeedsMapping ? Mapper.ToDocument(item) : item);
             }
 
-            document.SetField(_fieldPath, targetList);
+            document.SetField(FieldPath, targetList);
         }
     }
 }

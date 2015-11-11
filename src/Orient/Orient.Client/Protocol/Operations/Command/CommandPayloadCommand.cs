@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Orient.Client.Protocol.Serializers;
-
-namespace Orient.Client.Protocol.Operations.Command
+﻿namespace Orient.Client.Protocol.Operations.Command
 {
     internal class CommandPayloadCommand : CommandPayloadBase
     {

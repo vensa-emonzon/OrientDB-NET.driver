@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Orient.Client.Protocol;
 
@@ -20,7 +18,7 @@ namespace Orient.Client.API.Types
         private string driverName;
         private string driverVersion;
         private byte[] signature;
-        private ORID databaseUserRid;
+        private Orid databaseUserRid;
         private DateTime tokenExpire;
         private sbyte databaseType;
 
@@ -51,7 +49,7 @@ namespace Orient.Client.API.Types
 
                 if (clusterid != -1 && clusterpos != -1)
                 {
-                    token.databaseUserRid = new ORID(clusterid, clusterpos);
+                    token.databaseUserRid = new Orid(clusterid, clusterpos);
                 }
 
                 var tokenExpire = reader.ReadInt64EndianAware();

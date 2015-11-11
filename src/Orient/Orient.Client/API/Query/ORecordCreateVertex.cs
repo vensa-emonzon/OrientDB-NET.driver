@@ -4,6 +4,8 @@ using Orient.Client.API.Query.Interfaces;
 using Orient.Client.Protocol;
 using Orient.Client.Protocol.Operations;
 
+// ReSharper disable UnusedMember.Global
+
 // syntax: 
 // CREATE VERTEX [<class>] 
 // [CLUSTER <cluster>] 
@@ -13,7 +15,7 @@ namespace Orient.Client
 {
     public class ORecordCreateVertex : IOCreateVertex
     {
-        private Connection _connection;
+        private readonly Connection _connection;
         private ODocument _document;
 
         public ORecordCreateVertex()
@@ -68,11 +70,8 @@ namespace Orient.Client
 
         public IOCreateVertex Cluster(string clusterName)
         {
-            if (_document.ORID == null)
-                _document.ORID = new ORID();
-
-            _document.ORID.ClusterId = _connection.Database.GetClusters().First(x => x.Name == clusterName).Id;
-
+            var clusterId = _connection.Database.GetClusters().First(x => x.Name == clusterName).Id;
+            _document.Orid = new Orid(clusterId, _document.Orid.ClusterPosition);
             return this;
         }
 
@@ -115,14 +114,9 @@ namespace Orient.Client
 
         public OVertex Run()
         {
-            //            var operation = CreateSQLOperation();
-
-            var operation = new RecordCreate(_document, _connection.Database);
-            operation.OperationMode = OperationMode.Synchronous;
-            return _connection.ExecuteOperation(operation).To<OVertex>();
+            var operation = new RecordCreate(_document, _connection.Database) { OperationMode = OperationMode.Synchronous };
+            return _connection.ExecuteOperation(operation)?.To<OVertex>();
         }
-
-       
 
         public T Run<T>() where T : class, new()
         {
@@ -130,7 +124,5 @@ namespace Orient.Client
         }
 
         #endregion
-
-      
     }
 }

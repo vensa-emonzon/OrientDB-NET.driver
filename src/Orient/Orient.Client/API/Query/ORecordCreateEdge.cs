@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Orient.Client.API.Query.Interfaces;
 using Orient.Client.Protocol;
 using Orient.Client.Protocol.Operations;
@@ -10,10 +8,10 @@ namespace Orient.Client.API.Query
 {
     class ORecordCreateEdge : IOCreateEdge
     {
-        private Connection _connection;
+        private readonly Connection _connection;
         private ODocument _document;
-        private ORID _source;
-        private ORID _dest;
+        private Orid _source;
+        private Orid _dest;
         private string _edgeName;
 
         public ORecordCreateEdge()
@@ -65,11 +63,8 @@ namespace Orient.Client.API.Query
 
         public IOCreateEdge Cluster(string clusterName)
         {
-            if (_document.ORID == null)
-                _document.ORID = new ORID();
-
-            _document.ORID.ClusterId = _connection.Database.GetClusters().First(x => x.Name == clusterName).Id;
-
+            var clusterId = _connection.Database.GetClusters().First(x => x.Name == clusterName).Id;
+            _document.Orid = new Orid(clusterId, _document.Orid.ClusterPosition);
             return this;
         }
 
@@ -125,9 +120,8 @@ namespace Orient.Client.API.Query
 
             //            var operation = CreateSQLOperation();
 
-            var operation = new RecordCreate(_document, _connection.Database);
-            operation.OperationMode = OperationMode.Synchronous;
-            return _connection.ExecuteOperation(operation).To<OEdge>();
+            var operation = new RecordCreate(_document, _connection.Database) { OperationMode = OperationMode.Synchronous };
+            return _connection.ExecuteOperation(operation)?.To<OEdge>();
         }
         
         public T Run<T>() where T : class, new()
@@ -135,47 +129,38 @@ namespace Orient.Client.API.Query
             return Run().To<T>();
         }
 
-        public IOCreateEdge From(ORID orid)
+        public IOCreateEdge From(Orid Orid)
         {
-            _source = orid;
+            _source = Orid;
             return this;
         }
 
         public IOCreateEdge From<T>(T obj)
         {
-            _source = ToODocument(obj).ORID;
+            _source = ToODocument(obj).Orid;
             return this;
 
         }
 
-        public IOCreateEdge To(ORID orid)
+        public IOCreateEdge To(Orid Orid)
         {
-            _dest = orid;
+            _dest = Orid;
             return this;
         }
 
         public IOCreateEdge To<T>(T obj)
         {
-            _dest = ToODocument(obj).ORID;
+            _dest = ToODocument(obj).Orid;
             return this;
         }
 
         private static ODocument ToODocument<T>(T obj)
         {
-            ODocument document;
+            var document = (obj is ODocument) ? obj as ODocument : ODocument.ToDocument(obj);
 
-            if (obj is ODocument)
+            if (document.Orid == Orid.Null)
             {
-                document = obj as ODocument;
-            }
-            else
-            {
-                document = ODocument.ToDocument(obj);
-            }
-
-            if (document.ORID == null)
-            {
-                throw new OException(OExceptionType.Query, "Document doesn't contain ORID value.");
+                throw new OException(OExceptionType.Query, "Document doesn't contain Orid value.");
             }
             return document;
         }

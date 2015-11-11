@@ -2,7 +2,7 @@
 {
     public interface IBaseRecord
     {
-        ORID ORID { get; set; }
+        Orid Orid { get; set; }
         int OVersion { get; set; }
         short OClassId { get; set; }
         string OClassName { get; set; }

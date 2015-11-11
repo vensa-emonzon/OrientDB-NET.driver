@@ -1,5 +1,4 @@
-﻿using System;
-namespace Orient.Client.API.Query.Interfaces
+﻿namespace Orient.Client.API.Query.Interfaces
 {
     public interface IOInsert
     {

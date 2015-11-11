@@ -22,21 +22,21 @@ namespace Orient.Client.Protocol.Operations
         public RecordType RecordType { get; private set; }
         public IBaseRecord Object { get; set; }
 
-        public ORID ORID
+        public Orid Orid
         {
             get
             {
                 if (Document != null)
-                    return Document.ORID;
+                    return Document.Orid;
 
-                return Object.ORID;
+                return Object.Orid;
             }
             set
             {
                 if (Document != null)
-                    Document.ORID = value;
+                    Document.Orid = value;
                 if (Object != null)
-                    Object.ORID = value;
+                    Object.Orid = value;
             }
         }
 
@@ -74,8 +74,7 @@ namespace Orient.Client.Protocol.Operations
         {
             request.AddDataItem((byte)1); // undocumented but the java code does this
             request.AddDataItem((byte)RecordType);
-            request.AddDataItem(ORID.ClusterId);
-            request.AddDataItem(ORID.ClusterPosition);
+            request.AddDataItem(Orid);
             request.AddDataItem((byte)ORecordType.Document);
 
             var serializedDocument = RecordSerializerFactory.GetSerializer(request.Connection.Database).Serialize(GetDocument());

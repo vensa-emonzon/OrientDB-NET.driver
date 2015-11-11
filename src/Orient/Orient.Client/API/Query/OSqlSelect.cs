@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Orient.Client.Protocol;
 using Orient.Client.Protocol.Operations;
 using Orient.Client.Protocol.Operations.Command;
@@ -16,8 +17,8 @@ namespace Orient.Client
 {
     public class OSqlSelect
     {
-        private SqlQuery _sqlQuery;
-        private Connection _connection;
+        private readonly SqlQuery _sqlQuery;
+        private readonly Connection _connection;
 
         public OSqlSelect()
         {
@@ -77,9 +78,9 @@ namespace Orient.Client
             return this;
         }
 
-        public OSqlSelect From(ORID orid)
+        public OSqlSelect From(Orid Orid)
         {
-            _sqlQuery.From(orid);
+            _sqlQuery.From(Orid);
 
             return this;
         }
@@ -92,9 +93,9 @@ namespace Orient.Client
 
         public OSqlSelect From(ODocument document)
         {
-            if ((document.ORID == null) && string.IsNullOrEmpty(document.OClassName))
+            if ((document.Orid == Orid.Null) && string.IsNullOrEmpty(document.OClassName))
             {
-                throw new OException(OExceptionType.Query, "Document doesn't contain ORID or OClassName value.");
+                throw new OException(OExceptionType.Query, "Document doesn't contain Orid or OClassName value.");
             }
 
             _sqlQuery.From(document);
@@ -255,36 +256,27 @@ namespace Orient.Client
 
         public List<T> ToList<T>() where T : class, new()
         {
-            List<T> result = new List<T>();
-            List<ODocument> documents = ToList("*:0");
+            return ToList().Select(document => document.To<T>()).ToList();
+        }
 
-            foreach (ODocument document in documents)
+        public List<ODocument> ToList(string fetchPlan = "*:0")
+        {
+            var payload = new CommandPayloadQuery
             {
-                result.Add(document.To<T>());
-            }
+                Text = ToString(),
+                NonTextLimit = -1,
+                FetchPlan = fetchPlan
+            };
 
-            return result;
-        }
-
-        public List<ODocument> ToList()
-        {
-            return ToList("*:0");
-        }
-
-        public List<ODocument> ToList(string fetchPlan)
-        {
-            CommandPayloadQuery payload = new CommandPayloadQuery();
-            payload.Text = ToString();
-            payload.NonTextLimit = -1;
-            payload.FetchPlan = fetchPlan;
             //payload.SerializedParams = new byte[] { 0 };
 
-            Command operation = new Command(_connection.Database);
-            operation.OperationMode = OperationMode.Asynchronous;
-            operation.CommandPayload = payload;
+            var operation = new Command(_connection.Database)
+            {
+                OperationMode = OperationMode.Asynchronous,
+                CommandPayload = payload
+            };
 
-            OCommandResult commandResult = new OCommandResult(_connection.ExecuteOperation(operation));
-
+            var commandResult = new OCommandResult(_connection.ExecuteOperation(operation));
             return commandResult.ToList();
         }
 

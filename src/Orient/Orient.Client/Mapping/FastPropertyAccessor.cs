@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
+
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace Orient.Client.Mapping
 {
@@ -16,14 +17,12 @@ namespace Orient.Client.Mapping
         public static Func<T, object> BuildConstructor<T>(Type type)
         {
             var param1 = Expression.Parameter(typeof(T), "param1");
-            ConstructorInfo constructorInfo = type.GetConstructor(new Type[] {typeof (T)});
+            ConstructorInfo constructorInfo = type.GetConstructor(new[] {typeof(T)});
             if (constructorInfo == null)
                 throw new MissingMethodException(type.Name + " has so public constructore with 1 parameter of type " + typeof(T).Name);
             Expression body = Expression.New(constructorInfo, param1);
             return Expression.Lambda<Func<T, object>>(body, param1).Compile();    
-            
         }
-
     }
 
     class FastPropertyAccessor
@@ -53,7 +52,7 @@ namespace Orient.Client.Mapping
         public static Func<T, object> BuildUntypedGetter<T>(PropertyInfo propertyInfo)
         {
             var targetType = propertyInfo.DeclaringType;
-            var methodInfo = propertyInfo.GetGetMethod(true);
+            var methodInfo = propertyInfo.GetGetMethod();
 
             var exTarget = Expression.Parameter(targetType, "t");
             var exBody = Expression.Call(exTarget, methodInfo);
@@ -66,8 +65,6 @@ namespace Orient.Client.Mapping
 
     class FastCall
     {
-       
-
         public static Action<object, object> BuildCaller(MethodInfo methodInfo)
         {
             var targetType = methodInfo.DeclaringType;
@@ -79,6 +76,5 @@ namespace Orient.Client.Mapping
 
             return lambda.Compile();
         }
-
     }
 }

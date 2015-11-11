@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
-using Orient.Client.Protocol.Serializers;
 
 namespace Orient.Client.Protocol.Operations
 {
@@ -41,25 +38,28 @@ namespace Orient.Client.Protocol.Operations
 
                 for (int i = 1; i <= clusterCount; i++)
                 {
-                    OCluster cluster = new OCluster();
-
                     int clusterNameLength = reader.ReadInt32EndianAware();
+                    OCluster cluster = new OCluster
+                                       {
+                                           Name = Encoding.Default.GetString(reader.ReadBytes(clusterNameLength)),
+                                           Id = reader.ReadInt16EndianAware()
+                                       };
 
-                    cluster.Name = System.Text.Encoding.Default.GetString(reader.ReadBytes(clusterNameLength));
+                    #region !!! code segment commented out to bypass obsolete warning which will break our build.  We will never use a protocol version less than 30. !!!
 
-                    cluster.Id = reader.ReadInt16EndianAware();
+                    //if (OClient.ProtocolVersion < 24)
+                    //{
+                    //    int clusterTypeLength = reader.ReadInt32EndianAware();
 
-                    if (OClient.ProtocolVersion < 24)
-                    {
-                        int clusterTypeLength = reader.ReadInt32EndianAware();
+                    //    string clusterType = System.Text.Encoding.Default.GetString(reader.ReadBytes(clusterTypeLength));
+                    //    //cluster.Type = (OClusterType)Enum.Parse(typeof(OClusterType), clusterType, true);
+                    //    if (OClient.ProtocolVersion >= 12)
+                    //        cluster.DataSegmentID = reader.ReadInt16EndianAware();
+                    //    else
+                    //        cluster.DataSegmentID = 0;
+                    //}
 
-                        string clusterType = System.Text.Encoding.Default.GetString(reader.ReadBytes(clusterTypeLength));
-                        //cluster.Type = (OClusterType)Enum.Parse(typeof(OClusterType), clusterType, true);
-                        if (OClient.ProtocolVersion >= 12)
-                            cluster.DataSegmentID = reader.ReadInt16EndianAware();
-                        else
-                            cluster.DataSegmentID = 0;
-                    }
+                    #endregion
 
                     clusters.Add(cluster);
                 }

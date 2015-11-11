@@ -11,10 +11,12 @@ namespace Orient.Client.Mapping
 
     internal abstract class FieldMapping<TTarget> : IFieldMapping
     {
-        protected PropertyInfo _propertyInfo;
-        protected string _fieldPath;
-        private Action<TTarget, object> _setter;
-        private Func<TTarget, object> _getter;
+        private readonly Action<TTarget, object> _setter;
+        private readonly Func<TTarget, object> _getter;
+
+        protected string FieldPath { get; private set; }
+
+        protected PropertyInfo PropertyInfo { get; private set; }
 
         protected FieldMapping(PropertyInfo propertyInfo, string fieldPath)
         {
@@ -23,8 +25,9 @@ namespace Orient.Client.Mapping
                 _setter = FastPropertyAccessor.BuildUntypedSetter<TTarget>(propertyInfo);
                 _getter = FastPropertyAccessor.BuildUntypedGetter<TTarget>(propertyInfo);
             }
-            _propertyInfo = propertyInfo;
-            _fieldPath = fieldPath;
+
+            FieldPath = fieldPath;
+            PropertyInfo = propertyInfo;
         }
 
         protected object GetPropertyValue(TTarget target)
@@ -37,9 +40,9 @@ namespace Orient.Client.Mapping
                 _setter(target, value);
         }
 
+        protected abstract void MapToObject(ODocument document, TTarget typedObject);
 
-        public abstract void MapToObject(ODocument document, TTarget typedObject);
-        public abstract void MapToDocument(TTarget typedObject, ODocument document);
+        protected abstract void MapToDocument(TTarget typedObject, ODocument document);
 
         public void MapToObject(ODocument document, object typedObject)
         {
@@ -59,12 +62,11 @@ namespace Orient.Client.Mapping
         {
         }
 
-        public override void MapToObject(ODocument document, TTarget typedObject)
+        protected override void MapToObject(ODocument document, TTarget typedObject)
         {
-            if (document.HasField(_fieldPath))
+            if (document.Contains(FieldPath))
                 MapToNamedField(document, typedObject);
         }
-
 
         protected abstract void MapToNamedField(ODocument document, TTarget typedObject);
     }

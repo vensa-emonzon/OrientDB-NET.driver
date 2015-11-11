@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Orient.Client.Mapping
 {
@@ -18,21 +15,14 @@ namespace Orient.Client.Mapping
             PropertyInfo propertyInfo = mappingType.GetProperty("Instance", BindingFlags.Static | BindingFlags.Public);
             return (TypeMapperBase)propertyInfo.GetValue(null, null);
         }
-
-
     }
 
     public class TypeMapper<T> : TypeMapperBase
     {
-
-
         private static readonly TypeMapper<T> _instance = new TypeMapper<T>();
         public static TypeMapper<T> Instance { get { return _instance; } }
 
         readonly List<IFieldMapping> _fields = new List<IFieldMapping>();
-
-
-
 
         private TypeMapper()
         {
@@ -47,7 +37,7 @@ namespace Orient.Client.Mapping
 
             foreach (PropertyInfo propertyInfo in genericObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                if (!propertyInfo.CanRead || !propertyInfo.CanWrite)
+                if (!propertyInfo.CanRead || !propertyInfo.CanWrite || propertyInfo.GetIndexParameters().Length > 0)
                     continue; // read only or write only properties can be ignored
 
                 string propertyName = propertyInfo.Name;
@@ -55,8 +45,8 @@ namespace Orient.Client.Mapping
                 // serialize orient specific fields into dedicated properties
                 switch (propertyName)
                 {
-                    case "ORID":
-                        _fields.Add(new ORIDFieldMapping<T>(propertyInfo));
+                    case "Orid":
+                        _fields.Add(new OridFieldMapping<T>(propertyInfo, "Orid"));
                         continue;
                     case "OVersion":
                         _fields.Add(new OVersionFieldMapping<T>(propertyInfo));
@@ -109,10 +99,10 @@ namespace Orient.Client.Mapping
                     else
                         throw new NotImplementedException("No mapping implemented for type " + propertyInfo.PropertyType.Name);
                 }
-                // property is class except the string or ORID type since string and ORID values are parsed differently
+                // property is class except the string or Orid type since string and Orid values are parsed differently
                 else if (propertyInfo.PropertyType.IsClass &&
                          (propertyInfo.PropertyType.Name != "String") &&
-                         (propertyInfo.PropertyType.Name != "ORID"))
+                         (propertyInfo.PropertyType.Name != "Orid"))
                 {
                     AddClassProperty(propertyInfo, fieldPath);
                 }
@@ -124,19 +114,11 @@ namespace Orient.Client.Mapping
                 {
                     _fields.Add(new DateTimeFieldMapping<T>(propertyInfo, fieldPath));
                 }
-                else if (propertyInfo.PropertyType == typeof(TimeSpan))
-                {
-                    _fields.Add(new TimeSpanFieldMapping<T>(propertyInfo, fieldPath));
-                }
-                else if (propertyInfo.PropertyType == typeof(Nullable<TimeSpan>))
-                {
-                    _fields.Add(new NullableTimeSpanFieldMapping<T>(propertyInfo, fieldPath));
-                }
                 else if (propertyInfo.PropertyType == typeof(long))
                 {
                     _fields.Add(new LongFieldMapping<T>(propertyInfo, fieldPath));
                 }
-                else if (propertyInfo.PropertyType == typeof(Decimal))
+                else if (propertyInfo.PropertyType == typeof(decimal))
                 {
                     _fields.Add(new DecimalFieldMapping<T>(propertyInfo, fieldPath));
                 }
@@ -151,6 +133,10 @@ namespace Orient.Client.Mapping
                 else if (propertyInfo.PropertyType.BaseType == typeof(Enum))
                 {
                     _fields.Add(new EnumFieldMapping<T>(propertyInfo, fieldPath));
+                }
+                else if (propertyInfo.PropertyType == typeof(Orid))
+                {
+                    _fields.Add(new OridFieldMapping<T>(propertyInfo, fieldPath));
                 }
 
                 // property is basic type
@@ -211,9 +197,9 @@ namespace Orient.Client.Mapping
             //    string propertyName = propertyInfo.Name;
 
             //    // serialize following properties into dedicated fields in ODocument
-            //    if (propertyName.Equals("ORID"))
+            //    if (propertyName.Equals("Orid"))
             //    {
-            //        document.ORID = (ORID)propertyInfo.GetValue(genericObject, null);
+            //        document.Orid = (Orid)propertyInfo.GetValue(genericObject, null);
             //        continue;
             //    }
             //    else if (propertyName.Equals("OVersion"))

@@ -1,17 +1,27 @@
 ﻿using Orient.Client.API.Query;
 using Orient.Client.Protocol;
-using Orient.Client.Protocol.Operations;
+
+// ReSharper disable UnusedMember.Global
 
 namespace Orient.Client
 {
     public class OSqlDelete
     {
-        private Connection _connection;
+        private readonly Connection _connection;
 
         internal OSqlDelete(Connection connection)
         {
             _connection = connection;
         }
+
+        #region Class
+
+        public OSqlDeleteClass Class<T>()
+        {
+            return (new OSqlDeleteClass(_connection)).Drop<T>();
+        }
+
+        #endregion
 
         #region Document
 

@@ -1,5 +1,4 @@
-﻿using Orient.Client.API.Query;
-using Orient.Client.API.Query.Interfaces;
+﻿using Orient.Client.API.Query.Interfaces;
 using Orient.Client.Protocol;
 using Orient.Client.Protocol.Operations;
 using Orient.Client.Protocol.Operations.Command;
@@ -17,6 +16,7 @@ namespace Orient.Client
         {
             _sqlQuery = new SqlQuery(null);
         }
+
         internal OSqlCreateDocument(Connection connection)
         {
             _connection = connection;
@@ -68,8 +68,7 @@ namespace Orient.Client
 
         public IOCreateDocument Set<T>(string fieldName, T fieldValue)
         {
-            _sqlQuery.Set<T>(fieldName, fieldValue);
-
+            _sqlQuery.Set(fieldName, fieldValue);
             return this;
         }
 
@@ -86,21 +85,19 @@ namespace Orient.Client
 
         public ODocument Run()
         {
-            CommandPayloadCommand payload = new CommandPayloadCommand();
-            payload.Text = ToString();
-
-            Command operation = new Command(_connection.Database);
-            operation.OperationMode = OperationMode.Synchronous;
-            operation.CommandPayload = payload;
-
-            OCommandResult result = new OCommandResult(_connection.ExecuteOperation(operation));
-
-            return result.ToSingle();
+            return Run<ODocument>();
         }
 
         public T Run<T>() where T : class, new()
         {
-            return Run().To<T>();
+            var operation = new Command(_connection.Database)
+                                {
+                                    OperationMode = OperationMode.Synchronous,
+                                    CommandPayload = new CommandPayloadCommand { Text = ToString() }
+                                };
+
+            var result = new OCommandResult(_connection.ExecuteOperation(operation));
+            return result.ToSingle()?.To<T>();
         }
 
         #endregion

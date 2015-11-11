@@ -1,14 +1,17 @@
-﻿using Orient.Client;
-
-namespace Orient.Client
+﻿namespace Orient.Client
 {
     public abstract class OBaseRecord : IBaseRecord
     {
         private string _oClassName;
+        private Orid _orid = Orid.Null;
 
         #region Orient record specific properties
 
-        public ORID ORID { get; set; }
+        public Orid Orid
+        {
+            get { return _orid; }
+            set { _orid = value ?? Orid.Null; }
+        }
 
         public int OVersion { get; set; }
 

@@ -1,5 +1,5 @@
-﻿
-using System;
+﻿using System;
+
 namespace Orient.Client
 {
     public class OCluster : IEquatable<OCluster>
@@ -17,20 +17,9 @@ namespace Orient.Client
 
         public override bool Equals(object obj)
         {
-            if (obj == null)
-            {
-                return false;
-            }
-
-            // if parameter cannot be cast to ORID return false.
-            OCluster other = obj as OCluster;
-
-            if (other == null)
-            {
-                return false;
-            }
-
-            return Equals(other);
+            // if parameter cannot be cast to Orid return false.
+            var other = obj as OCluster;
+            return other != null && Equals(other);
         }
 
         public override int GetHashCode()
@@ -42,7 +31,7 @@ namespace Orient.Client
 
         public static bool operator ==(OCluster left, OCluster right)
         {
-            if (System.Object.ReferenceEquals(left, right))
+            if (ReferenceEquals(left, right))
             {
                 return true;
             }
@@ -65,7 +54,7 @@ namespace Orient.Client
             if (other == null)
                 return false;
 
-            return Id == other.Id && String.Equals(Name, other.Name, StringComparison.InvariantCultureIgnoreCase) && Type == other.Type;
+            return Id == other.Id && string.Equals(Name, other.Name, StringComparison.InvariantCultureIgnoreCase) && Type == other.Type;
         }
     }
 }

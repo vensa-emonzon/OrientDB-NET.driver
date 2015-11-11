@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Orient.Client.Protocol.Serializers;
-
-namespace Orient.Client.Protocol.Operations
+﻿namespace Orient.Client.Protocol.Operations
 {
     internal class DBCountRecords : BaseOperation
     {
@@ -32,7 +26,7 @@ namespace Orient.Client.Protocol.Operations
                 ReadToken(reader);
 
             var size = reader.ReadInt64EndianAware();
-            document.SetField<long>("count", size);
+            document.SetField("count", size);
 
             return document;
         }

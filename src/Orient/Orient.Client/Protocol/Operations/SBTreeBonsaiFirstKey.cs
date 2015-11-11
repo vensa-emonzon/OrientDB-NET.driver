@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Orient.Client.Protocol.Operations
+﻿namespace Orient.Client.Protocol.Operations
 {
     internal class SBTreeBonsaiFirstKey : BaseOperation
     {
@@ -48,7 +43,7 @@ namespace Orient.Client.Protocol.Operations
             short clusterId = reader.ReadInt16EndianAware();
             long clusterPosition = reader.ReadInt64EndianAware();
 
-            document.SetField<ORID>("rid", new ORID(clusterId, clusterPosition));
+            document.SetField<Orid>("rid", new Orid(clusterId, clusterPosition));
 
             return document;
         }

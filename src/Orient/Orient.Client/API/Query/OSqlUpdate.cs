@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Orient.Client.Protocol;
+﻿using Orient.Client.Protocol;
 using Orient.Client.Protocol.Operations;
 using Orient.Client.Protocol.Operations.Command;
 
@@ -38,9 +37,9 @@ namespace Orient.Client
 
         #region Update
 
-        public OSqlUpdate Update(ORID orid)
+        public OSqlUpdate Update(Orid Orid)
         {
-            _sqlQuery.Record(orid);
+            _sqlQuery.Record(Orid);
 
             return this;
         }
@@ -88,16 +87,16 @@ namespace Orient.Client
 
         #region Record
 
-        public OSqlUpdate Record(ORID orid)
+        public OSqlUpdate Record(Orid Orid)
         {
-            _sqlQuery.Record(orid);
+            _sqlQuery.Record(Orid);
 
             return this;
         }
 
         public OSqlUpdate Record(ODocument document)
         {
-            return Record(document.ORID);
+            return Record(document.Orid);
         }
 
         #endregion
@@ -246,17 +245,6 @@ namespace Orient.Client
 
             return this;
         }
-
-        #region Upsert
-
-        public OSqlUpdate Upsert()
-        {
-            _sqlQuery.Upsert();
-
-            return this;
-        }
-
-        #endregion
 
         public int Run()
         {

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using Orient.Client.API.Types;
 
@@ -12,7 +11,7 @@ namespace Orient.Client.Protocol.Serializers
     {
         private long MILLISEC_PER_DAY = 86400000;
         private const int SERIALIZER_VERSION = 0;
-        private ORID NULL_RECORD_ID = new ORID(-2, -1);
+        private Orid NULL_RECORD_ID = new Orid(-2, -1);
         private Connection _connection;
 
         public RecordBinarySerializer(Connection connection)
@@ -225,10 +224,10 @@ namespace Orient.Client.Protocol.Serializers
                 case OType.Link:
                     var claster = readAsLong(reader);
                     var record = readAsLong(reader);
-                    document.SetField(fieldName, new ORID((short)claster, record));
+                    document.SetField(fieldName, new Orid((short)claster, record));
                     break;
                 case OType.LinkBag:
-                    var rids = new HashSet<ORID>();
+                    var rids = new HashSet<Orid>();
                     var config = reader.ReadByte();
                     if ((config & 2) == 2)
                     {
@@ -243,7 +242,7 @@ namespace Orient.Client.Protocol.Serializers
                         {
                             var clusterid = reader.ReadInt16EndianAware();
                             var clusterposition = reader.ReadInt64EndianAware();
-                            rids.Add(new ORID(clusterid, clusterposition));
+                            rids.Add(new Orid(clusterid, clusterposition));
                         }
                     }
                     else
@@ -257,7 +256,7 @@ namespace Orient.Client.Protocol.Serializers
                     document.SetField(fieldName, linkList);
                     break;
                 case OType.LinkSet:
-                    var linkSet = new HashSet<ORID>(readLinkCollection(reader));
+                    var linkSet = new HashSet<Orid>(readLinkCollection(reader));
                     document.SetField(fieldName, linkSet);
                     break;
                 case OType.Any:
@@ -267,9 +266,9 @@ namespace Orient.Client.Protocol.Serializers
             }
         }
 
-        private IEnumerable<ORID> readLinkCollection(BinaryReader reader)
+        private IEnumerable<Orid> readLinkCollection(BinaryReader reader)
         {
-            var links = new List<ORID>();
+            var links = new List<Orid>();
             var collectionLength = readAsLong(reader);
             for (int i = 0; i < collectionLength; i++)
             {
@@ -278,7 +277,7 @@ namespace Orient.Client.Protocol.Serializers
                 if (clusterid == NULL_RECORD_ID.ClusterId && clusterPosition == NULL_RECORD_ID.ClusterPosition)
                     links.Add(null);
                 else
-                    links.Add(new ORID((short)clusterid, clusterPosition));
+                    links.Add(new Orid((short)clusterid, clusterPosition));
             }
             return links;
         }
@@ -397,12 +396,12 @@ namespace Orient.Client.Protocol.Serializers
                 //    var unscaledValue = new BigInteger(unscaledValueBytes);
                 //    break;
                 case OType.Link:
-                    ORID rid = (ORID)value;
+                    Orid rid = (Orid)value;
                     pointer = buffer.Write(rid);
                     break;
                 case OType.LinkList:
                 case OType.LinkSet:
-                    var col = (ICollection<ORID>)value;
+                    var col = (ICollection<Orid>)value;
                     pointer = buffer.WriteVariant(col.Count);
 
                     foreach (var item in col)

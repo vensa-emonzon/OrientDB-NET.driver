@@ -1,5 +1,6 @@
 ﻿
 using Orient.Client.Protocol.Serializers;
+
 namespace Orient.Client.Protocol.Operations
 {
     internal interface IOperation

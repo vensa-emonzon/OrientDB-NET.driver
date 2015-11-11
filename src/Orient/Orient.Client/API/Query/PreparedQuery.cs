@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Orient.Client.Protocol;
 using Orient.Client.Protocol.Operations;
 using Orient.Client.Protocol.Operations.Command;
@@ -11,9 +9,9 @@ namespace Orient.Client.API.Query
 {
     public class PreparedQuery
     {
-        private string _query;
+        private readonly string _query;
         private Connection _connection;
-        private string _fetchPlan;
+        private readonly string _fetchPlan;
         private Dictionary<string, object> _parameters;
 
         public PreparedQuery(string query, string fetchPlan = "*:0")
@@ -30,7 +28,7 @@ namespace Orient.Client.API.Query
         public List<ODocument> Run(params string[] properties)
         {
             if (_connection == null)
-                throw new ArgumentNullException("_connection");
+                throw new ArgumentNullException(nameof(_connection));
 
             if (_parameters == null)
             {
@@ -55,37 +53,36 @@ namespace Orient.Client.API.Query
             try
             {
                 if (_parameters == null)
-                    throw new ArgumentNullException("_parameters");
+                    throw new ArgumentNullException(nameof(_parameters));
 
-                var paramsDocument = new ODocument();
-                paramsDocument.OClassName = "";
+                var paramsDocument = new ODocument { OClassName = "" };
                 paramsDocument.SetField("params", _parameters);
 
                 var serializer = RecordSerializerFactory.GetSerializer(_connection.Database);
 
+                var payload = new CommandPayloadQuery
+                              {
+                                  Text = ToString(),
+                                  NonTextLimit = -1,
+                                  FetchPlan = _fetchPlan,
+                                  SerializedParams = serializer.Serialize(paramsDocument)
+                              };
 
-                CommandPayloadQuery payload = new CommandPayloadQuery();
-                payload.Text = ToString();
-
-                payload.NonTextLimit = -1;
-                payload.FetchPlan = _fetchPlan;
-                payload.SerializedParams = serializer.Serialize(paramsDocument);
-
-                Command operation = new Command(_connection.Database);
-                operation.OperationMode = OperationMode.Synchronous;
-                operation.CommandPayload = payload;
+                var operation = new Command(_connection.Database)
+                                {
+                                    OperationMode = OperationMode.Synchronous,
+                                    CommandPayload = payload
+                                };
 
                 ODocument document = _connection.ExecuteOperation(operation);
-
                 return document.GetField<List<ODocument>>("Content");
             }
             finally
             {
                 _parameters = null;
             }
-
-
         }
+
         public List<ODocument> Run()
         {
             return RunInternal();
@@ -101,8 +98,8 @@ namespace Orient.Client.API.Query
             if (_parameters == null)
                 _parameters = new Dictionary<string, object>();
 
-            if (String.IsNullOrEmpty(key))
-                throw new ArgumentNullException("key");
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentNullException(nameof(key));
 
             _parameters.Add(key, value);
 

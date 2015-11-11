@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Orient.Client.Protocol.Serializers;
-
-namespace Orient.Client.Protocol.Operations
+﻿namespace Orient.Client.Protocol.Operations
 {
     internal class ConfigGet : BaseOperation
     {

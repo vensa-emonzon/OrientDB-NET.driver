@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Orient.Client.Mapping
 {
@@ -9,7 +8,7 @@ namespace Orient.Client.Mapping
         {
         }
 
-        public override void MapToObject(ODocument document, TTarget typedObject)
+        protected override void MapToObject(ODocument document, TTarget typedObject)
         {
             var target = (ODocument) (object) typedObject;
             foreach (KeyValuePair<string, object> item in document)
@@ -18,7 +17,7 @@ namespace Orient.Client.Mapping
             }
         }
 
-        public override void MapToDocument(TTarget typedObject, ODocument document)
+        protected override void MapToDocument(TTarget typedObject, ODocument document)
         {
             var source = (ODocument)(object)typedObject;
             foreach (KeyValuePair<string, object> item in source)

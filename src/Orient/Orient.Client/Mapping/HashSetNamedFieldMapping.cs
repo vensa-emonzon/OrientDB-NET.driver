@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Orient.Client.Mapping
@@ -8,13 +6,13 @@ namespace Orient.Client.Mapping
     internal class HashSetNamedFieldMapping<TTarget> : CollectionNamedFieldMapping<TTarget>
     {
         private readonly Func<object> _listFactory;
-        private Action<object, object> _addFunc;
+        private readonly Action<object, object> _addFunc;
 
         public HashSetNamedFieldMapping(PropertyInfo propertyInfo, string fieldPath)
             : base(propertyInfo, fieldPath)
         {
-            _listFactory = FastConstructor.BuildConstructor(_propertyInfo.PropertyType);
-            _addFunc = FastCall.BuildCaller(_propertyInfo.PropertyType.GetMethod("Add"));
+            _listFactory = FastConstructor.BuildConstructor(PropertyInfo.PropertyType);
+            _addFunc = FastCall.BuildCaller(PropertyInfo.PropertyType.GetMethod("Add"));
         }
 
         protected override object CreateCollectionInstance(int collectionSize)
