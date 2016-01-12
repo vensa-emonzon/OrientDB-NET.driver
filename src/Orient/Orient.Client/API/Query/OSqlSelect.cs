@@ -3,6 +3,8 @@ using System.Linq;
 using Orient.Client.Protocol;
 using Orient.Client.Protocol.Operations;
 using Orient.Client.Protocol.Operations.Command;
+using Orient.Client.API.Attributes;
+using System;
 
 // syntax:
 // SELECT [FROM <Target> 
@@ -105,16 +107,31 @@ namespace Orient.Client
 
         public OSqlSelect From<T>()
         {
-            return From(typeof(T).Name);
+            var tAttribute = (OAliasAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(OAliasAttribute), true);
+            if (tAttribute == null)
+            {
+                return From(typeof(T).Name);
+            }
+            else
+            {
+                return From(tAttribute.Name);
+            }
         }
 
         #endregion
 
         #region Where with conditions
 
-        public OSqlSelect Where(string field)
+        public OSqlSelect Where(params string[] fields)
         {
-            _sqlQuery.Where(field);
+            _sqlQuery.Where(fields);
+
+            return this;
+        }
+
+        public OSqlSelect Where(IEnumerable<string> fields)
+        {
+            _sqlQuery.Where(fields);
 
             return this;
         }
@@ -182,6 +199,14 @@ namespace Orient.Client
             return this;
         }
 
+        public OSqlSelect Lucene<T>(T item)
+        {
+            _sqlQuery.Lucene<T>(item);
+
+            return this;
+        }
+
+
         public OSqlSelect IsNull()
         {
             _sqlQuery.IsNull();
@@ -202,17 +227,17 @@ namespace Orient.Client
 
             return this;
         }
-        
+
         public OSqlSelect In<T>(IList<T> list)
         {
             _sqlQuery.In(list);
-            
+
             return this;
         }
-        
-        public OSqlSelect Between( int num1, int num2)
+
+        public OSqlSelect Between(int num1, int num2)
         {
-            _sqlQuery.Between(num1,num2);
+            _sqlQuery.Between(num1, num2);
             return this;
         }
         #endregion

@@ -34,6 +34,7 @@ namespace Orient.Client.Protocol
         internal const string Limit = "LIMIT";
         internal const string LinkedType = "LINKEDTYPE";
         internal const string LinkedClass = "LINKEDCLASS";
+        internal const string Lucene = "LUCENE";
         internal const string NotEquals = "!=";
         internal const string Null = "NULL";
         internal const string Or = "OR";
