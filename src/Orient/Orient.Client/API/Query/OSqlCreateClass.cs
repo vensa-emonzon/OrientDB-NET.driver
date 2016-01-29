@@ -135,12 +135,17 @@ namespace Orient.Client
 
         private void CreateAutoProperties()
         {
-            foreach (var pi in _type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public))
+            foreach (var pi in _type.GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public))
             {
+
                 if (pi.CanRead && pi.CanWrite)
                 {
                     var oprop = pi.GetOPropertyAttribute();
                     if (oprop != null && !oprop.Deserializable && !oprop.Serializable)
+                        continue;
+
+                    var cprop = pi.GetClassPropertyAttribute();
+                    if (cprop == null)
                         continue;
 
                     CreateProperty(pi);
@@ -151,7 +156,7 @@ namespace Orient.Client
         private void CreateProperty(PropertyInfo pi)
         {
             var propType = ConvertPropertyType(pi.PropertyType);
-            var @class =  _className;
+            var @class = _className;
 
             var propid = _connection.Database
                 .Create

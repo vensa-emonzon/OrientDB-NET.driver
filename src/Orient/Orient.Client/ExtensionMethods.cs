@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Orient.Client.API.Attributes;
 
 namespace Orient.Client
 {
@@ -10,6 +11,18 @@ namespace Orient.Client
         public static OProperty GetOPropertyAttribute(this PropertyInfo property)
         {
             return property.GetCustomAttributes(typeof(OProperty), true).OfType<OProperty>().FirstOrDefault();
+
+        }
+        public static ClassProperty GetClassPropertyAttribute(this PropertyInfo property)
+        {
+            try
+            {
+                return property.GetCustomAttributes(typeof(ClassProperty), true).OfType<ClassProperty>().First();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static string ToInvarianCultureString(this object value)

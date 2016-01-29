@@ -569,7 +569,7 @@ namespace Orient.Client.Protocol
                 else
                 {
                     var propDocument = _connection.Database.DatabaseProperties;
-                    var dateTimeFormat = propDocument.GetField<string>("DateTimeFormat");
+                    var dateTimeFormat = propDocument.GetField<string>("DateTimeFormat").Replace("S", "f");
                     var timeZone = propDocument.GetField<string>("Timezone");
 
                     // How to map Windows TimeZone id to IANA timezone id

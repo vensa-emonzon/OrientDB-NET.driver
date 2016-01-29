@@ -21,6 +21,7 @@ namespace Orient.Client.API.Types
             AddType<HashSet<Orid>>(OType.LinkSet);
             AddType<List<Orid>>(OType.LinkList);
             AddType<Orid>(OType.Link);
+            AddType<Guid>(OType.String);
         }
 
         private static void AddType<T>(OType name)
