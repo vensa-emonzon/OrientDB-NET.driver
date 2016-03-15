@@ -13,6 +13,7 @@ namespace Orient.Client
             return property.GetCustomAttributes(typeof(OProperty), true).OfType<OProperty>().FirstOrDefault();
 
         }
+
         public static ClassProperty GetClassPropertyAttribute(this PropertyInfo property)
         {
             try

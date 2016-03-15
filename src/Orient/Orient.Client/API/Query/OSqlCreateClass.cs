@@ -135,7 +135,7 @@ namespace Orient.Client
 
         private void CreateAutoProperties()
         {
-            foreach (var pi in _type.GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public))
+            foreach (var pi in _type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public))
             {
 
                 if (pi.CanRead && pi.CanWrite)
