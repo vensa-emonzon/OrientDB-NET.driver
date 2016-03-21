@@ -130,7 +130,7 @@ namespace Orient.Client.Mapping
                 {
                     _fields.Add(new LongFieldMapping<T>(propertyInfo, fieldPath));
                 }
-                else if (propertyInfo.PropertyType.BaseType == typeof(Enum))
+                else if (propertyInfo.PropertyType.IsEnum)
                 {
                     _fields.Add(new EnumFieldMapping<T>(propertyInfo, fieldPath));
                 }
@@ -175,7 +175,7 @@ namespace Orient.Client.Mapping
         {
             ODocument document = new ODocument();
 
-            if(genericObject != null)
+            if (genericObject != null)
             {
                 foreach (var fm in _fields)
                     fm.MapToDocument(genericObject, document);

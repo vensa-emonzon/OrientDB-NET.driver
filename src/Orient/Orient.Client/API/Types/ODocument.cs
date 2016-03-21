@@ -94,7 +94,7 @@ namespace Orient.Client
 
             // Field not found; setup a new field to default value.
             var result = (type.IsPrimitive || type == typeof(string) || type.IsArray)
-                ? default(T) 
+                ? default(T)
                 : (T)Activator.CreateInstance(type);
 
             SetField(fieldPath, result);
@@ -177,7 +177,7 @@ namespace Orient.Client
 
         #region Indexer
 
-        public object this[string key] 
+        public object this[string key]
         {
             get { return GetField<object>(key); }
             set { SetField(key, value); }
@@ -308,6 +308,10 @@ namespace Orient.Client
             {
                 return (T)Convert.ChangeType(fieldValue, typeof(T));
             }
+            else if (type == typeof(string) && fieldValue is int)
+            {
+                return (T)(object)fieldValue.ToString();
+            }
 
             return (T)fieldValue;
         }
@@ -315,7 +319,7 @@ namespace Orient.Client
         private static bool FindField(ref ODocument document, string fieldPath, out string[] fieldKeys)
         {
             fieldKeys = fieldPath.Split('.');
-            
+
             for (var ii = 0; ii < fieldKeys.Length; ++ii)
             {
                 if (document.Fields.ContainsKey(fieldKeys[ii]))
@@ -394,6 +398,6 @@ namespace Orient.Client
 
         }
 
-#endregion
+        #endregion
     }
 }

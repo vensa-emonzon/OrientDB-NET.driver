@@ -37,8 +37,12 @@ namespace Orient.Client.API.Types
             if (_types.TryGetValue(t, out result))
                 return result;
 
+            if (t.IsEnum)
+            {
+                return OType.Integer;
+            }
+
             throw new ArgumentException("propertyType " + t.Name + " is not yet supported.");
         }
     }
-
 }
