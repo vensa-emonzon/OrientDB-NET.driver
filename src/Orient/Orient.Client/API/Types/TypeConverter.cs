@@ -15,6 +15,7 @@ namespace Orient.Client.API.Types
             AddType<float>(OType.Float);
             AddType<double>(OType.Double);
             AddType<DateTime>(OType.DateTime);
+            AddType<TimeSpan>(OType.Long);
             AddType<byte[]>(OType.Binary);
             AddType<byte>(OType.Byte);
             AddType<decimal>(OType.Decimal);

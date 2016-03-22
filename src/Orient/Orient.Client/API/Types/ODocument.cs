@@ -288,6 +288,10 @@ namespace Orient.Client
                     return (T)(object)parsedValue;
                 }
             }
+            else if (type == typeof(TimeSpan))
+            {
+                return (T)(object)TimeSpan.FromTicks((long)fieldValue);
+            }
             else if (type == typeof(Guid))
             {
                 if (fieldValue is Orid)
